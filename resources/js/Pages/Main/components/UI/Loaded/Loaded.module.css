@@ -1,0 +1,26 @@
+.hr_style{
+    margin: 0 auto;
+    width: 90%;
+}
+.hr_date{
+    margin: 0 auto;
+    width: 80%;
+}
+
+.LoadedXML{
+    display: flex;
+    flex-wrap: wrap; /* Позволяет карточкам переноситься на новую строку */
+    gap: 8px; /* Отступы между карточками */
+    margin: 10px auto;
+    width: 85%;
+    justify-content: flex-start; /* Выравнивание по центру по горизонтали */
+    align-items: flex-start; /* Выравнивание по верху по вертикали */
+}
+
+@media (max-width: 768px) {
+    .LoadedXML {
+        width: 90%;
+        flex-direction: column;
+        align-items: center;
+    }
+}

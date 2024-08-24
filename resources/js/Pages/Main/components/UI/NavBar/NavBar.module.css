@@ -1,0 +1,37 @@
+.navbar {
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    background-color: rgb(249,249,249);
+    height: 6vh;
+    align-items: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: large;
+}
+    
+.main {
+    text-align: center;
+    grid-area: 1 / 1 / 2 / 2;
+}
+.adminpanel {
+    text-align: right;
+    padding-right: 5vh;
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+a.text{
+    text-decoration: none;
+    color: rgb(99, 99, 99);
+}
+
+a.text:hover{
+  text-decoration: none;
+  color: #303030;
+}
+
+.text:active{
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+}

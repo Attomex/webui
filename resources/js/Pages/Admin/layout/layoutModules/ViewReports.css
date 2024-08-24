@@ -1,0 +1,24 @@
+#vulnerabilities-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#vulnerabilities-table th,
+#vulnerabilities-table td {
+    align-items: center;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+select[disabled] {
+    background-color: #f2f2f2;
+    color: #999;
+    border-color: #ddd;
+    cursor: not-allowed;
+}
+
+.downloadExcel[disabled] {
+    background-color: rgba(255, 0, 0, 0.5);
+    border: 1px solid rgba(255, 47, 47, 0.5);
+    cursor: not-allowed;
+}

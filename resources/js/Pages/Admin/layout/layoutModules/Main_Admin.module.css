@@ -1,0 +1,10 @@
+.app__container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.chart__wrapper {
+    width: 45%;
+    margin: 10px;
+}

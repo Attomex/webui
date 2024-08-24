@@ -1,0 +1,33 @@
+.LoadButton{
+    background-color: rgb(249,249,249);
+    border: 1px solid #d3d3d3;
+    width: 50vh;
+    margin: 50px auto;
+    border: 1px solid #303030;
+}
+
+.LoadButton:hover{
+    background-color: rgb(249,249,249);
+    border: 1px solid rgb(249,249,249);
+}
+
+.LoadButton:active{
+    background-color: rgb(177, 177, 177) !important;
+    border: 1px solid rgb(177, 177, 177) !important;
+}
+
+a.text{
+    text-decoration: none;
+    color: rgb(99, 99, 99);
+}
+
+a.text:hover{
+  background-color: white !important;
+  text-decoration: none !important;
+  color: #303030 !important;
+}
+
+.text:active{
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+}

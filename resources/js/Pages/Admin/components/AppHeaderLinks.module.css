@@ -1,0 +1,18 @@
+.head_link{
+    display: inline-block;
+    margin-right: 1.5rem;
+    text-decoration: none;
+    color: rgb(63, 153, 255);
+    font-size: 1.2rem;
+    font-weight: 540;
+    border: 1px solid rgb(63, 153, 255);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.head_link:hover{
+  text-decoration: none;
+  background-color: rgba(63, 153, 255, 0.7);
+  color: black;
+}

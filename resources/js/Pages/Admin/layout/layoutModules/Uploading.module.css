@@ -1,0 +1,44 @@
+.form__label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.select__field{
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    width: 300px;
+    height: auto;
+    max-width: 300px;
+    margin-bottom: 5px;
+    transition: border-color 0.3s;
+}
+
+.form__input__text {
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    height: 2.2rem;
+    max-width: 300px;
+    transition: border-color 0.3s;
+}
+
+.form__input__text:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.form__input__file {
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+    transition: border-color 0.3s;
+    background-color: #f8f9fa;
+}
+
+.form__input__file:hover {
+    border-color: #007bff;
+}
