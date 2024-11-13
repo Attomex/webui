@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     AppContent,
     AppSidebar,
@@ -6,7 +6,7 @@ import {
     AppHeader,
 } from "../components/index";
 import "../scss/style.scss";
-import { Button, Table, Spinner, Alert } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import {
     CRow,
     CCol,
@@ -22,8 +22,15 @@ import {
 } from "@coreui/react";
 import "./layoutModules/ViewReports.css";
 import c from "../layout/layoutModules/ViewReports.module.css";
-import { useForm } from "@inertiajs/inertia-react";
 import axios from "axios";
+
+import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner";
+import MessageAlert from "../shared/MessageAlert/MessageAlert";
+
+import {
+    useComputerOptions
+} from "../hooks/useReportsData";
+import useComparisonReportData from "../hooks/useComparisonReportData";
 
 const Comparison = () => {
     // Базовые состояния
@@ -39,14 +46,13 @@ const Comparison = () => {
     const [oldVulnerabilities, setOldVulnerabilities] = useState([]);
     const [fixedVulnerabilities, setFixedVulnerabilities] = useState([]);
     // Списки
-    const [computerOptions, setComputerOptions] = useState([]);
-    // Опции дат новые и старые
-    const [newDateOptions, setNewDateOptions] = useState([]);
-    const [oldDateOptions, setOldDateOptions] = useState([]);
-    // Опции номеров отчётов новые и старые
-    const [newReportNumberOptions, setNewReportNumberOptions] = useState([]);
-    const [oldReportNumberOptions, setOldReportNumberOptions] = useState([]);
-
+    const computerOptions = useComputerOptions();
+    const {
+        newDateOptions,
+        oldDateOptions,
+        newReportNumberOptions,
+        oldReportNumberOptions,
+    } = useComparisonReportData(selectedComputer, selectedNewDate, selectedOldDate);
     // Сообщения
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
@@ -57,105 +63,10 @@ const Comparison = () => {
     const [visible, setVisible] = useState(false);
     const [selectedVulnerability, setSelectedVulnerability] = useState(null);
 
-    const [number, setNumber] = useState(0);
-
     const openModal = (vulnerability) => {
         setSelectedVulnerability(vulnerability);
         setVisible(true);
     };
-
-    useEffect(() => {
-        const getComputersIdentifiers = async () => {
-            await axios
-                .get("/admin/getComputersIdentifiers")
-                .then((response) => {
-                    setComputerOptions(response.data);
-                })
-                .catch((error) => {
-                    console.error("Error loading computers", error);
-                });
-        };
-
-        getComputersIdentifiers();
-    }, []);
-
-    useEffect(() => {
-        const getUniqueDates = async () => {
-            if (selectedComputer) {
-                await axios
-                    .get(
-                        `/admin/getReportsByComputer?computer_identifier=${selectedComputer}`
-                    )
-                    .then((response) => {
-                        const uniqueDates = [
-                            ...new Set(
-                                response.data.map(
-                                    (report) => report.report_date
-                                )
-                            ),
-                        ];
-                        setNewDateOptions(uniqueDates);
-                        setOldDateOptions(uniqueDates);
-                    })
-                    .catch((error) => {
-                        console.error("Error loading dates", error);
-                    });
-            } else {
-                setNewDateOptions([]);
-                setOldDateOptions([]);
-            }
-        };
-
-        getUniqueDates();
-    }, [selectedComputer]);
-
-    useEffect(() => {
-        const getNewReportNumbers = async () => {
-            if (selectedNewDate) {
-                // Загрузка списка номеров отчетов для выбранной новой даты
-                await axios
-                    .get(
-                        `/admin/getReportsByComputer?computer_identifier=${selectedComputer}&report_date=${selectedNewDate}`
-                    )
-                    .then((response) => {
-                        setNewReportNumberOptions(
-                            response.data.map((report) => report.report_number)
-                        );
-                    })
-                    .catch((error) => {
-                        console.error("Error loading report numbers", error);
-                    });
-            } else {
-                setNewReportNumberOptions([]);
-            }
-        };
-
-        getNewReportNumbers();
-    }, [selectedNewDate]);
-
-    useEffect(() => {
-        const getOldReportNumbers = async () => {
-            if (selectedOldDate) {
-                // Загрузка списка номеров отчетов для выбранной  прошлой даты
-                await axios
-                    .get(
-                        `/admin/getReportsByComputer?computer_identifier=${selectedComputer}&report_date=${selectedOldDate}`
-                    )
-                    .then((response) => {
-                        setOldReportNumberOptions(
-                            response.data.map((report) => report.report_number)
-                        );
-                    })
-                    .catch((error) => {
-                        console.error("Error loading report numbers", error);
-                    });
-            } else {
-                setOldReportNumberOptions([]);
-            }
-        };
-
-        getOldReportNumbers();
-    }, [selectedOldDate]);
 
     const handleComputerChange = (event) => {
         const selectedIdentifier = event.target.value;
@@ -442,36 +353,9 @@ const Comparison = () => {
                                 value="Сравнить отчёты"
                             />
                         </form>
-                        {comparisonStatus && (
-                            <div
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    marginTop: "10px",
-                                }}
-                            >
-                                <Spinner
-                                    animation="grow"
-                                    variant="warning"
-                                    role="status"
-                                    style={{
-                                        width: "2rem",
-                                        height: "2rem",
-                                    }}
-                                >
-                                    <span className="sr-only">
-                                        Происходит сравнение отчётов, пожалуйста
-                                        подождите немного
-                                    </span>
-                                </Spinner>
-                                <span style={{ marginLeft: "10px" }}>
-                                    Происходит сравнение отчётов, пожалуйста
-                                    подождите немного
-                                </span>
-                            </div>
-                        )}
-                        {message && <Alert variant="success">{message}</Alert>}
-                        {error && <Alert variant="danger">{error}</Alert>}
+                        {comparisonStatus && <LoadingSpinner text="Происходит сравнение отчётов, пожалуйста подождите немного"/>}
+                        {message && <MessageAlert message={message} variant={"success"}/>}
+                        {error && <MessageAlert message={error} variant={"danger"}/>}
                         {message && (
                             <>
                                 <CRow>

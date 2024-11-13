@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     AppContent,
     AppSidebar,
@@ -6,7 +6,7 @@ import {
     AppHeader,
 } from "../components/index";
 import "../scss/style.scss";
-import { Button, Table, Spinner, Alert } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import {
     CRow,
     CCol,
@@ -24,17 +24,25 @@ import c from "./layoutModules/ViewReports.module.css";
 import * as XLSX from "xlsx";
 import "./layoutModules/ViewReports.css";
 
-import { useForm } from "@inertiajs/inertia-react";
 import axios from "axios";
 
-const ViewReports = () => {
+import { 
+    useComputerOptions,
+    useDateOptions,
+    useReportNumberOptions
+ } from "../hooks/useReportsData";
+
+import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner";
+import MessageAlert from "../shared/MessageAlert/MessageAlert";
+
+const DownloadReport = () => {
     const [selectedComputer, setSelectedComputer] = useState("");
     const [selectedDate, setSelectedDate] = useState("");
     const [selectedReportNumber, setSelectedReportNumber] = useState("");
 
-    const [computerOptions, setComputerOptions] = useState([]);
-    const [dateOptions, setDateOptions] = useState([]);
-    const [reportNumberOptions, setReportNumberOptions] = useState([]);
+    const computerOptions = useComputerOptions();
+    const dateOptions = useDateOptions(selectedComputer);
+    const reportNumberOptions = useReportNumberOptions(selectedComputer, selectedDate);
 
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
@@ -49,74 +57,6 @@ const ViewReports = () => {
         setSelectedVulnerability(vulnerability);
         setVisible(true);
     };
-
-    useEffect(() => {
-        const getComputersIdentifiers = async () => {
-            await axios
-                .get("/admin/getComputersIdentifiers")
-                .then((response) => {
-                    setComputerOptions(response.data);
-                })
-                .catch((error) => {
-                    console.error("Error loading computers", error);
-                });
-        };
-
-        getComputersIdentifiers();
-    }, []);
-
-    useEffect(() => {
-        const getUniqueDates = async () => {
-            if (selectedComputer) {
-                await axios
-                    .get(
-                        `/admin/getReportsByComputer?computer_identifier=${selectedComputer}`
-                    )
-                    .then((response) => {
-                        const uniqueDates = [
-                            ...new Set(
-                                response.data.map(
-                                    (report) => report.report_date
-                                )
-                            ),
-                        ];
-                        setDateOptions(uniqueDates);
-                    })
-                    .catch((error) => {
-                        console.error("Error loading dates", error);
-                    });
-            } else {
-                setDateOptions([]);
-                setReportNumberOptions([]);
-            }
-        };
-
-        getUniqueDates();
-    }, [selectedComputer]);
-
-    useEffect(() => {
-        const getReportNumbers = async () => {
-            if (selectedDate) {
-                // Загрузка списка номеров отчетов для выбранной даты
-                await axios
-                    .get(
-                        `/admin/getReportsByComputer?computer_identifier=${selectedComputer}&report_date=${selectedDate}`
-                    )
-                    .then((response) => {
-                        setReportNumberOptions(
-                            response.data.map((report) => report.report_number)
-                        );
-                    })
-                    .catch((error) => {
-                        console.error("Error loading report numbers", error);
-                    });
-            } else {
-                setReportNumberOptions([]);
-            }
-        };
-
-        getReportNumbers();
-    }, [selectedDate]);
 
     const handleComputerChange = (event) => {
         const selectedIdentifier = event.target.value;
@@ -412,48 +352,9 @@ const ViewReports = () => {
                                 value="Скачать отчёт"
                             ></Button>
                         </form>
-                        {loading && (
-                            <div
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    marginTop: "10px",
-                                }}
-                            >
-                                <Spinner
-                                    animation="grow"
-                                    variant="warning"
-                                    role="status"
-                                    style={{
-                                        width: "2rem",
-                                        height: "2rem",
-                                    }}
-                                >
-                                    <span className="sr-only">
-                                        Загружается...
-                                    </span>
-                                </Spinner>
-                                <span style={{ marginLeft: "10px" }}>
-                                    Загружается...
-                                </span>
-                            </div>
-                        )}
-                        {message && (
-                            <Alert
-                                style={{ width: "max-content" }}
-                                variant="success"
-                            >
-                                {message}
-                            </Alert>
-                        )}
-                        {error && (
-                            <Alert
-                                style={{ width: "max-content" }}
-                                variant="danger"
-                            >
-                                {error}
-                            </Alert>
-                        )}
+                        {loading && <LoadingSpinner text="Загружается..."/>}
+                        {message && <MessageAlert message={message} variant={"success"}/>}
+                        {error && <MessageAlert message={error} variant={"danger"}/>}
 
                         {vulnerabilities.length > 0 && (
                             <div>
@@ -624,4 +525,4 @@ const ViewReports = () => {
     );
 };
 
-export default ViewReports;
+export default DownloadReport;

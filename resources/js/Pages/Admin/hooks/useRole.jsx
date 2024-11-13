@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 export function useRole() {
-    const [role, setRole] = useState(null); // Поменял "" на null
+    const [role, setRole] = useState(null);
 
     useEffect(() => {
         axios

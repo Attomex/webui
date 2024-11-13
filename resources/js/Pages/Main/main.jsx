@@ -15,7 +15,7 @@ const Main = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/cards'); // Замените на ваш endpoint
+        const response = await axios.get('/cards');
         setData(response.data);
         setLoading(false);
 

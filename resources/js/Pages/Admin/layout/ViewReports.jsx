@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     AppContent,
     AppSidebar,
@@ -6,7 +6,7 @@ import {
     AppHeader,
 } from "../components/index";
 import "../scss/style.scss";
-import { Button, Spinner, Alert } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import {
     CRow,
     CCol,
@@ -20,24 +20,35 @@ import {
     CModalFooter,
     CTable,
 } from "@coreui/react";
-import c from "./layoutModules/ViewReports.module.css";
 import "./layoutModules/ViewReports.css";
 
+import { handleDeleteReport } from "../utils/deleteReport";
+import {
+    useComputerOptions,
+    useDateOptions,
+    useReportNumberOptions,
+} from "../hooks/useReportsData";
+import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner";
+import MessageAlert from "../shared/MessageAlert/MessageAlert";
+
 import axios from "axios";
+import SelectField from "../components/SelectField";
 
 const ViewReports = () => {
     const [selectedComputer, setSelectedComputer] = useState("");
     const [selectedDate, setSelectedDate] = useState("");
     const [selectedReportNumber, setSelectedReportNumber] = useState("");
 
-    const [computerOptions, setComputerOptions] = useState([]);
-    const [dateOptions, setDateOptions] = useState([]);
-    const [reportNumberOptions, setReportNumberOptions] = useState([]);
+    const computerOptions = useComputerOptions();
+    const dateOptions = useDateOptions(selectedComputer);
+    const reportNumberOptions = useReportNumberOptions(
+        selectedComputer,
+        selectedDate
+    );
 
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const [download, setDownload] = useState(true);
     const [vulnerabilities, setVulnerabilities] = useState([]);
 
     const [visible, setVisible] = useState(false);
@@ -48,98 +59,21 @@ const ViewReports = () => {
     const handleShowModal = () => setShowModalDelete(true);
     const handleCloseModal = () => setShowModalDelete(false);
 
-    const handleDelete = async () => {
-        try {
-            const response = await axios.delete(`/admin/view/`, {
-                data: {
-                    report_number: selectedReportNumber,
-                    report_date: selectedDate,
-                },
-            });
-            handleCloseModal();
-            alert(response.data.message);
-            setError("");
-            window.location.reload(true);
-        } catch (error) {
-            setError(response.data.error);
-            setMessage("");
-        }
+    const handleDelete = () => {
+        handleDeleteReport(
+            selectedReportNumber,
+            selectedDate,
+            handleCloseModal,
+            setError,
+            setMessage
+        );
     };
-
     // конец удаления отчета
 
     const openModal = (vulnerability) => {
         setSelectedVulnerability(vulnerability);
         setVisible(true);
     };
-
-    useEffect(() => {
-        const getComputersIdentifiers = async () => {
-            
-            try {
-                const response = await axios.get("/admin/getComputersIdentifiers");
-    
-                setComputerOptions(response.data);
-            } catch (error) {
-                console.error("Error loading computers", error);
-            }
-    
-        };
-    
-        getComputersIdentifiers();
-    }, []);
-
-    useEffect(() => {
-        const getUniqueDates = async () => {
-            if (selectedComputer) {
-                await axios
-                    .get(
-                        `/admin/getReportsByComputer?computer_identifier=${selectedComputer}`
-                    )
-                    .then((response) => {
-                        const uniqueDates = [
-                            ...new Set(
-                                response.data.map(
-                                    (report) => report.report_date
-                                )
-                            ),
-                        ];
-                        setDateOptions(uniqueDates);
-                    })
-                    .catch((error) => {
-                        console.error("Error loading dates", error);
-                    });
-            } else {
-                setDateOptions([]);
-                setReportNumberOptions([]);
-            }
-        };
-
-        getUniqueDates();
-    }, [selectedComputer]);
-
-    useEffect(() => {
-        const getReportNumbers = async () => {
-            if (selectedDate) {
-                // Загрузка списка номеров отчетов для выбранной даты
-                await axios
-                    .get(
-                        `/admin/getReportsByComputer?computer_identifier=${selectedComputer}&report_date=${selectedDate}`
-                    )
-                    .then((response) => {
-                        setReportNumberOptions(
-                            response.data.map((report) => report.report_number)
-                        );
-                    })
-                    .catch((error) => {
-                        console.error("Error loading report numbers", error);
-                    });
-            } else {
-                setReportNumberOptions([]);
-            }
-        }
-        getReportNumbers();
-    }, [selectedDate]);
 
     const handleComputerChange = (event) => {
         const selectedIdentifier = event.target.value;
@@ -149,7 +83,6 @@ const ViewReports = () => {
         setVulnerabilities([]);
         setError("");
         setMessage("");
-        setDownload(true);
         setVisibleDelete(false);
     };
 
@@ -160,7 +93,6 @@ const ViewReports = () => {
             setVulnerabilities([]);
             setError("");
             setMessage("");
-            setDownload(true);
             setVisibleDelete(false);
         }
     };
@@ -170,7 +102,6 @@ const ViewReports = () => {
         setVulnerabilities([]);
         setError("");
         setMessage("");
-        setDownload(true);
         setVisibleDelete(false);
     };
 
@@ -181,7 +112,6 @@ const ViewReports = () => {
             setMessage("");
             setError("");
             setVulnerabilities([]);
-            setDownload(true);
             const response = await axios.post("/admin/view", {
                 computer_identifier: selectedComputer,
                 report_date: selectedDate,
@@ -190,7 +120,6 @@ const ViewReports = () => {
             setVulnerabilities(response.data.vulnerabilities);
             setMessage(response.data.message);
             setError("");
-            setDownload(false);
             setVisibleDelete(true);
         } catch (error) {
             setError(error.response.data.error);
@@ -211,104 +140,35 @@ const ViewReports = () => {
                         <form onSubmit={handleSubmit}>
                             <table>
                                 <tbody>
-                                    <tr>
-                                        <td>
-                                            <label className={c.label__field}>
-                                                Идентификатор компьютера:
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className={c.select__field}
-                                                id="computer_identifier"
-                                                value={selectedComputer}
-                                                onChange={handleComputerChange}
-                                                required
-                                            >
-                                                <option value="">
-                                                    Выберите компьютер
-                                                </option>
-                                                {computerOptions.map(
-                                                    (computer) => (
-                                                        <option
-                                                            key={computer.id}
-                                                            value={
-                                                                computer.identifier
-                                                            }
-                                                        >
-                                                            {
-                                                                computer.identifier
-                                                            }
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <label className={c.label__field}>
-                                                Дата отчёта:
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className={c.select__field}
-                                                id="report_date"
-                                                value={selectedDate}
-                                                onChange={handleDateChange}
-                                                required
-                                                disabled={!selectedComputer}
-                                            >
-                                                <option value="">
-                                                    Выберите дату отчёта
-                                                </option>
-                                                {dateOptions.map(
-                                                    (date, index) => (
-                                                        <option
-                                                            key={index}
-                                                            value={date}
-                                                        >
-                                                            {date}
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <label className={c.label__field}>
-                                                Номер отчёта:
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className={c.select__field}
-                                                id="report_number"
-                                                value={selectedReportNumber}
-                                                onChange={
-                                                    handleReportNumberChange
-                                                }
-                                                required
-                                                disabled={!selectedDate}
-                                            >
-                                                <option value="">
-                                                    Выберите номер отчёта
-                                                </option>
-                                                {reportNumberOptions.map(
-                                                    (number, index) => (
-                                                        <option
-                                                            key={index}
-                                                            value={number}
-                                                        >
-                                                            {number}
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        </td>
-                                    </tr>
+                                    <SelectField
+                                        label="Идентификатор компьютера"
+                                        option="компьютер"
+                                        id="computer_identifier"
+                                        value={selectedComputer}
+                                        onChange={handleComputerChange}
+                                        options={computerOptions}
+                                        required
+                                    />
+                                    <SelectField
+                                        label="Дата отчёта"
+                                        option="дату отчёта"
+                                        id="report_date"
+                                        value={selectedDate}
+                                        onChange={handleDateChange}
+                                        options={dateOptions}
+                                        required
+                                        disabled={!selectedComputer}
+                                    />
+                                    <SelectField
+                                        label="Номер отчёта"
+                                        option="номер отчёта"
+                                        id="report_number"
+                                        value={selectedReportNumber}
+                                        onChange={handleReportNumberChange}
+                                        options={reportNumberOptions}
+                                        required
+                                        disabled={!selectedDate}
+                                    />
                                 </tbody>
                             </table>
                             <Button
@@ -365,47 +225,15 @@ const ViewReports = () => {
                                 </>
                             )}
                         </form>
-                        {loading && (
-                            <div
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    marginTop: "10px",
-                                }}
-                            >
-                                <Spinner
-                                    animation="grow"
-                                    variant="warning"
-                                    role="status"
-                                    style={{
-                                        width: "2rem",
-                                        height: "2rem",
-                                    }}
-                                >
-                                    <span className="sr-only">
-                                        Загружается...
-                                    </span>
-                                </Spinner>
-                                <span style={{ marginLeft: "10px" }}>
-                                    Загружается...
-                                </span>
-                            </div>
-                        )}
+                        {loading && <LoadingSpinner text={"Загружается..."} />}
                         {message && (
-                            <Alert
-                                style={{ width: "max-content" }}
-                                variant="success"
-                            >
-                                {message}
-                            </Alert>
+                            <MessageAlert
+                                message={message}
+                                variant={"success"}
+                            />
                         )}
                         {error && (
-                            <Alert
-                                style={{ width: "max-content" }}
-                                variant="danger"
-                            >
-                                {error}
-                            </Alert>
+                            <MessageAlert message={error} variant={"danger"} />
                         )}
 
                         {vulnerabilities.length > 0 && (

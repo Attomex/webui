@@ -6,20 +6,7 @@ import {
     AppHeader,
 } from "../components/index";
 import "../scss/style.scss";
-import { Button, Table, Spinner, Alert } from "react-bootstrap";
-import {
-    CRow,
-    CCol,
-    CCard,
-    CCardBody,
-    CButton,
-    CModal,
-    CModalHeader,
-    CModalTitle,
-    CModalBody,
-    CModalFooter,
-    CTable,
-} from "@coreui/react";
+import { Button, Table } from "react-bootstrap";
 
 import { useForm } from "@inertiajs/react";
 import InputError from "@/Components/InputError";
@@ -30,7 +17,7 @@ import TextInput from "@/Components/TextInput";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 
-const ViewReports = () => {
+const CreateAdmin = () => {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: "",
         email: "",
@@ -88,7 +75,9 @@ const ViewReports = () => {
                             .catch((error) => {
                                 console.error("Error deleting user", error);
                             });
+                        window.location.reload(true);
                     },
+                    
                 },
                 {
                     label: "Нет",
@@ -260,4 +249,4 @@ const ViewReports = () => {
     );
 };
 
-export default ViewReports;
+export default CreateAdmin;

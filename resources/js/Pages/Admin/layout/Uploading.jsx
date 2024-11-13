@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import {
     AppContent,
@@ -6,35 +6,26 @@ import {
     AppFooter,
     AppHeader,
 } from "../components/index";
-import { Alert, Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import "../scss/style.scss";
 import { parseHTML } from "../scripts/parseHTML";
 import c from "./layoutModules/Uploading.module.css";
 import UploadingOptions from "../components/UploadingOptions";
 
+import { useComputerOptions } from "../hooks/useReportsData";
+
+import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner";
+import MessageAlert from "../shared/MessageAlert/MessageAlert";
+
 const Uploading = () => {
     const [report_file, setFile] = useState(null);
     const [computerIdentifier, setComputerIdentifier] = useState("");
     const [newIdentifier, setNewIdentifier] = useState("");
-    const [computerOptions, setComputerOptions] = useState([]);
+    const computerOptions = useComputerOptions();
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const getComputerOptions = async () => {
-            await axios
-                .get("/admin/getComputersIdentifiers")
-                .then((response) => {
-                    setComputerOptions(response.data);
-                })
-                .catch((error) => {
-                    console.error("Error loading computers", error);
-                });
-        };
-
-        getComputerOptions();
-    }, []);
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
@@ -169,48 +160,9 @@ const Uploading = () => {
                                 Очистить поля
                             </Button>
                         </form>
-                        {loading && (
-                            <div
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    marginTop: "10px",
-                                }}
-                            >
-                                <Spinner
-                                    animation="grow"
-                                    variant="warning"
-                                    role="status"
-                                    style={{
-                                        width: "2rem",
-                                        height: "2rem",
-                                    }}
-                                >
-                                    <span className="sr-only">
-                                        Загружается...
-                                    </span>
-                                </Spinner>
-                                <span style={{ marginLeft: "10px" }}>
-                                    Загружается...
-                                </span>
-                            </div>
-                        )}
-                        {message && (
-                            <Alert
-                                style={{ width: "max-content" }}
-                                variant="success"
-                            >
-                                {message}
-                            </Alert>
-                        )}
-                        {error && (
-                            <Alert
-                                style={{ width: "max-content" }}
-                                variant="danger"
-                            >
-                                {error}
-                            </Alert>
-                        )}
+                        {loading && <LoadingSpinner text="Загружается..."/>}
+                        {message && <MessageAlert message={message} variant={"success"}/>}
+                        {error && <MessageAlert message={error} variant={"danger"}/>}
                     </div>
                 </div>
                 <AppFooter />
