@@ -1,8 +1,8 @@
 import React from 'react';
-import c from '../layout/layoutModules/ViewReports.module.css';
-import '../layout/layoutModules/ViewReports.css';
+import c from '../../layout/layoutModules/ViewReports.module.css';
+import '../../layout/layoutModules/ViewReports.css';
 
-const SelectField = ({ label, option, id, value, onChange, options, required, disabled }) => (
+const SelectField = ({ label, option, id, value, onChange, options, required, disabled, filterOptions }) => (
     <tr>
         <td>
             <label className={c.label__field}>
@@ -21,7 +21,14 @@ const SelectField = ({ label, option, id, value, onChange, options, required, di
                 <option value="">
                     Выберите {option}
                 </option>
-                {options.map((option, index) => (
+                {filterOptions ? filterOptions(options).map((option, index) => (
+                    <option
+                        key={index}
+                        value={option.identifier || option}
+                    >
+                        {option.identifier || option}
+                    </option>
+                )) : options.map((option, index) => (
                     <option
                         key={index}
                         value={option.identifier || option}

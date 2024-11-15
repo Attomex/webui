@@ -7,19 +7,6 @@ import {
 } from "../components/index";
 import "../scss/style.scss";
 import { Button } from "react-bootstrap";
-import {
-    CRow,
-    CCol,
-    CCard,
-    CCardBody,
-    CButton,
-    CModal,
-    CModalHeader,
-    CModalTitle,
-    CModalBody,
-    CModalFooter,
-    CTable,
-} from "@coreui/react";
 import "./layoutModules/ViewReports.css";
 
 import { handleDeleteReport } from "../utils/deleteReport";
@@ -32,7 +19,11 @@ import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner";
 import MessageAlert from "../shared/MessageAlert/MessageAlert";
 
 import axios from "axios";
-import SelectField from "../components/SelectField";
+import SelectField from "../shared/SelectField/SelectField";
+import ButtonDetails from "../shared/ButtonDetails/ButtonDetails";
+import VulnerabilityCard from "../shared/VulnerabilityCard/VulnerabilityCard";
+import ButtonDelete from "../shared/ButtonDelete/ButtonDelete";
+import VulnerabilityInfo from "../shared/VulnerabilityInfo/VulnerabilityInfo";
 
 const ViewReports = () => {
     const [selectedComputer, setSelectedComputer] = useState("");
@@ -191,37 +182,13 @@ const ViewReports = () => {
                                     >
                                         Удалить
                                     </Button>
-
-                                    <CModal
-                                        alignment="center"
+                                    <ButtonDelete
                                         visible={showModalDelete}
                                         onClose={handleCloseModal}
-                                    >
-                                        <CModalHeader>
-                                            <CModalTitle>
-                                                Подтверждение удаления
-                                            </CModalTitle>
-                                        </CModalHeader>
-                                        <CModalBody>
-                                            Вы уверены, что хотите удалить отчет{" "}
-                                            {selectedComputer} от {selectedDate}
-                                            ?
-                                        </CModalBody>
-                                        <CModalFooter>
-                                            <Button
-                                                variant="secondary"
-                                                onClick={handleCloseModal}
-                                            >
-                                                Отмена
-                                            </Button>
-                                            <Button
-                                                variant="danger"
-                                                onClick={handleDelete}
-                                            >
-                                                Удалить
-                                            </Button>
-                                        </CModalFooter>
-                                    </CModal>
+                                        onDelete={handleDelete}
+                                        selectedComputer={selectedComputer}
+                                        selectedDate={selectedDate}
+                                    />
                                 </>
                             )}
                         </form>
@@ -237,165 +204,19 @@ const ViewReports = () => {
                         )}
 
                         {vulnerabilities.length > 0 && (
-                            <div>
-                                <p>
-                                    Идентификатор компьютера: {selectedComputer}
-                                </p>
-                                <p>Дата отчёта: {selectedDate}</p>
-                                <p>Номер отчёта: {selectedReportNumber}</p>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexWrap: "wrap",
-                                        gap: "11px",
-                                        overflowX: "hidden",
-                                    }}
-                                >
-                                    {vulnerabilities.map((vulnerability) => (
-                                        <div
-                                            key={vulnerability.number}
-                                            style={{
-                                                flex: "1 1 calc(33.33% - 6px)",
-                                                maxWidth: "400px",
-                                            }}
-                                        >
-                                            <CCard>
-                                                <CCardBody>
-                                                    <h5>
-                                                        Код ошибки:{" "}
-                                                        {
-                                                            vulnerability.identifier
-                                                        }
-                                                    </h5>
-                                                    <p>
-                                                        Уровень ошибки:{" "}
-                                                        {
-                                                            vulnerability.error_level
-                                                        }
-                                                    </p>
-                                                    <div
-                                                        style={{
-                                                            display: "flex",
-                                                            justifyContent:
-                                                                "space-between",
-                                                            alignItems:
-                                                                "center",
-                                                        }}
-                                                    >
-                                                        <CButton
-                                                            color="primary"
-                                                            onClick={() =>
-                                                                openModal(
-                                                                    vulnerability
-                                                                )
-                                                            }
-                                                        >
-                                                            Подробнее
-                                                        </CButton>
-                                                        <span
-                                                            style={{
-                                                                border: "1px solid rgba(139, 157, 255, 0.58)",
-                                                                padding: "7px",
-                                                                borderRadius:
-                                                                    "2vh",
-                                                                fontWeight:
-                                                                    "bold",
-                                                                backgroundColor:
-                                                                    "rgba(139, 157, 255, 0.5)",
-                                                            }}
-                                                        >
-                                                            Номер:{" "}
-                                                            {
-                                                                vulnerability.number
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                </CCardBody>
-                                            </CCard>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+                            <VulnerabilityInfo
+                                vulnerabilities={vulnerabilities}
+                                selectedComputer={selectedComputer}
+                                selectedDate={selectedDate}
+                                selectedReportNumber={selectedReportNumber}
+                                openModal={openModal}
+                            />
                         )}
-
-                        <CModal
-                            size="xl"
-                            scrollable
+                        <ButtonDetails
                             visible={visible}
                             onClose={() => setVisible(false)}
-                        >
-                            <CModalHeader onClose={() => setVisible(false)}>
-                                <CModalTitle>Подробная информация</CModalTitle>
-                            </CModalHeader>
-                            <CModalBody>
-                                {selectedVulnerability && (
-                                    <CTable striped hover responsive size="sm">
-                                        <thead>
-                                            <tr>
-                                                <th>
-                                                    Идентификатор уязвимости
-                                                </th>
-                                                <th>Название уязвимости</th>
-                                                <th>Описание</th>
-                                                <th>
-                                                    Возможные меры по устранению
-                                                </th>
-                                                <th>Ссылки на источники</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    {
-                                                        selectedVulnerability.identifier
-                                                    }
-                                                </td>
-                                                <td>
-                                                    {selectedVulnerability.name}
-                                                </td>
-                                                <td>
-                                                    {
-                                                        selectedVulnerability.description
-                                                    }
-                                                </td>
-                                                <td>
-                                                    {
-                                                        selectedVulnerability.remediation_measures
-                                                    }
-                                                </td>
-                                                <td>
-                                                    <ul>
-                                                        {selectedVulnerability.source_links.map(
-                                                            (link, index) => (
-                                                                <li key={index}>
-                                                                    <a
-                                                                        href={
-                                                                            link
-                                                                        }
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                    >
-                                                                        {link}
-                                                                    </a>
-                                                                </li>
-                                                            )
-                                                        )}
-                                                    </ul>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </CTable>
-                                )}
-                            </CModalBody>
-                            <CModalFooter>
-                                <CButton
-                                    color="secondary"
-                                    onClick={() => setVisible(false)}
-                                >
-                                    Закрыть
-                                </CButton>
-                            </CModalFooter>
-                        </CModal>
+                            selectedVulnerability={selectedVulnerability}
+                        />
                     </div>
                 </div>
                 <br />

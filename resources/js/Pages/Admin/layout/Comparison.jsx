@@ -31,6 +31,10 @@ import {
     useComputerOptions
 } from "../hooks/useReportsData";
 import useComparisonReportData from "../hooks/useComparisonReportData";
+import ButtonDetails from "../shared/ButtonDetails/ButtonDetails";
+import SelectField from "../shared/SelectField/SelectField";
+import VulnerabilityCard from "../shared/VulnerabilityCard/VulnerabilityCard";
+import ComparisonVulnerability from "../shared/ComparisonVulnerability/ComparisonVulnerability";
 
 const Comparison = () => {
     // Базовые состояния
@@ -172,174 +176,60 @@ const Comparison = () => {
                         <form onSubmit={handleSubmit}>
                             <table>
                                 <tbody>
-                                    <tr>
-                                        <td>
-                                            <label className={c.label__field}>
-                                                Идентификатор компьютера:
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className={c.select__field}
-                                                id="computer_identifier"
-                                                value={selectedComputer}
-                                                onChange={handleComputerChange}
-                                                required
-                                            >
-                                                <option value="">
-                                                    Выберите компьютер
-                                                </option>
-                                                {computerOptions.map(
-                                                    (computer) => (
-                                                        <option
-                                                            key={computer.id}
-                                                            value={
-                                                                computer.identifier
-                                                            }
-                                                        >
-                                                            {
-                                                                computer.identifier
-                                                            }
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        </td>
-                                    </tr>
+                                    <SelectField
+                                        label="Идентификатор компьютера"
+                                        option="компьютер"
+                                        id="computer_identifier"
+                                        value={selectedComputer}
+                                        onChange={handleComputerChange}
+                                        options={computerOptions}
+                                        required
+                                    />
                                     <br />
-                                    <tr>
-                                        <td>
-                                            <label className={c.label__field}>
-                                                Дата нового отчёта:
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className={c.select__field}
-                                                id="report_date"
-                                                value={selectedNewDate}
-                                                onChange={handleNewDateChange}
-                                                required
-                                                disabled={!selectedComputer}
-                                            >
-                                                <option value="">
-                                                    Выберите дату нового отчёта
-                                                </option>
-                                                {newDateOptions.map(
-                                                    (date, index) => (
-                                                        <option
-                                                            key={index}
-                                                            value={date}
-                                                        >
-                                                            {date}
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <label className={c.label__field}>
-                                                Номер нового отчёта:
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className={c.select__field}
-                                                id="report_number"
-                                                value={selectedNewReportNumber}
-                                                onChange={
-                                                    handleNewReportNumberChange
-                                                }
-                                                required
-                                                disabled={!selectedNewDate}
-                                            >
-                                                <option value="">
-                                                    Выберите номер отчёта
-                                                </option>
-                                                {newReportNumberOptions.map(
-                                                    (number, index) => (
-                                                        <option
-                                                            key={index}
-                                                            value={number}
-                                                        >
-                                                            {number}
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        </td>
-                                    </tr>
+                                    <SelectField
+                                        label="Дата нового отчёта"
+                                        option="дату нового отчёта"
+                                        id="report_date"
+                                        value={selectedNewDate}
+                                        onChange={handleNewDateChange}
+                                        options={newDateOptions}
+                                        required
+                                        disabled={!selectedComputer}
+                                    />
+                                    <SelectField
+                                        label="Номер нового отчёта"
+                                        option="номер нового отчёта"
+                                        id="report_number"
+                                        value={selectedNewReportNumber}
+                                        onChange={handleNewReportNumberChange}
+                                        options={newReportNumberOptions}
+                                        required
+                                        disabled={!selectedNewDate}
+                                    />
                                     <br />
                                     {/* прошлые */}
-                                    <tr>
-                                        <td>
-                                            <label className={c.label__field}>
-                                                Дата прошлого отчёта:
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className={c.select__field}
-                                                id="report_date"
-                                                value={selectedOldDate}
-                                                onChange={handleOldDateChange}
-                                                required
-                                                disabled={
-                                                    !selectedNewReportNumber
-                                                }
-                                            >
-                                                <option value="">
-                                                    Выберите дату прошлого
-                                                    отчёта
-                                                </option>
-                                                {filterOldDates(
-                                                    selectedNewDate
-                                                ).map((date, index) => (
-                                                    <option
-                                                        key={index}
-                                                        value={date}
-                                                    >
-                                                        {date}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <label className={c.label__field}>
-                                                Номер прошлого отчёта:
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className={c.select__field}
-                                                id="report_number"
-                                                value={selectedOldReportNumber}
-                                                onChange={
-                                                    handleOldReportNumberChange
-                                                }
-                                                required
-                                                disabled={!selectedOldDate}
-                                            >
-                                                <option value="">
-                                                    Выберите номер отчёта
-                                                </option>
-                                                {filterOldReportNumbers(
-                                                    selectedNewReportNumber
-                                                ).map((number, index) => (
-                                                    <option
-                                                        key={index}
-                                                        value={number}
-                                                    >
-                                                        {number}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                    </tr>
+                                    <SelectField
+                                        label="Дата прошлого отчёта"
+                                        option="дату прошлого отчёта"
+                                        id="report_date"
+                                        value={selectedOldDate}
+                                        onChange={handleOldDateChange}
+                                        options={selectedNewDate}
+                                        required
+                                        disabled={!selectedNewReportNumber}
+                                        filterOptions={filterOldDates}
+                                    />
+                                    <SelectField
+                                        label="Номер прошлого отчёта"
+                                        option="номер прошлого отчёта"
+                                        id="report_number"
+                                        value={selectedOldReportNumber}
+                                        onChange={handleOldReportNumberChange}
+                                        options={selectedNewReportNumber}
+                                        required
+                                        disabled={!selectedOldDate}
+                                        filterOptions={filterOldReportNumbers}
+                                    />
                                 </tbody>
                             </table>
                             <Button
@@ -361,390 +251,37 @@ const Comparison = () => {
                                 <CRow>
                                     <CCol>
                                         <CCard>
-                                            <CCardBody>
-                                                <h4>Появившиеся уязвимости</h4>
-                                                {newVulnerabilities.length >
-                                                    0 && (
-                                                    <div
-                                                        style={{
-                                                            display: "flex",
-                                                            flexWrap: "wrap",
-                                                            gap: "11px",
-                                                            overflowX: "hidden",
-                                                        }}
-                                                    >
-                                                        {newVulnerabilities.map(
-                                                            (vulnerability) => (
-                                                                <div
-                                                                    key={
-                                                                        vulnerability.id
-                                                                    }
-                                                                    style={{
-                                                                        flex: "1 1 calc(33.33% - 6px)",
-                                                                        maxWidth:
-                                                                            "400px",
-                                                                    }}
-                                                                >
-                                                                    <CCard>
-                                                                        <CCardBody>
-                                                                            <h5>
-                                                                                Код
-                                                                                ошибки:{" "}
-                                                                                {
-                                                                                    vulnerability.identifier
-                                                                                }
-                                                                            </h5>
-                                                                            <p>
-                                                                                Уровень
-                                                                                ошибки:{" "}
-                                                                            </p>
-                                                                            <p>
-                                                                                {
-                                                                                    vulnerability.error_level
-                                                                                }
-                                                                            </p>
-                                                                            <div
-                                                                                style={{
-                                                                                    display:
-                                                                                        "flex",
-                                                                                    justifyContent:
-                                                                                        "space-between",
-                                                                                    alignItems:
-                                                                                        "center",
-                                                                                }}
-                                                                            >
-                                                                                <CButton
-                                                                                    color="primary"
-                                                                                    onClick={() =>
-                                                                                        openModal(
-                                                                                            vulnerability
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    Подробнее
-                                                                                </CButton>
-                                                                                <span
-                                                                                    style={{
-                                                                                        border: "1px solid rgba(139, 157, 255, 0.58)",
-                                                                                        padding:
-                                                                                            "7px",
-                                                                                        borderRadius:
-                                                                                            "2vh",
-                                                                                        fontWeight:
-                                                                                            "bold",
-                                                                                        backgroundColor:
-                                                                                            "rgba(139, 157, 255, 0.5)",
-                                                                                    }}
-                                                                                >
-                                                                                    №:{" "}
-                                                                                    {
-                                                                                        vulnerability.number
-                                                                                    }
-                                                                                </span>
-                                                                            </div>
-                                                                        </CCardBody>
-                                                                    </CCard>
-                                                                </div>
-                                                            )
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </CCardBody>
+                                            <ComparisonVulnerability
+                                                text="Появившиеся уязвимости"
+                                                selectedVulnerability={newVulnerabilities}
+                                                openModal={openModal}
+                                            />
                                         </CCard>
                                     </CCol>
                                     <CCol>
                                         <CCard>
-                                            <CCardBody>
-                                                <h4>Неисправленные уязвимости</h4>
-                                                {oldVulnerabilities.length >
-                                                    0 && (
-                                                    <div
-                                                        style={{
-                                                            display: "flex",
-                                                            flexWrap: "wrap",
-                                                            gap: "11px",
-                                                            overflowX: "hidden",
-                                                        }}
-                                                    >
-                                                        {oldVulnerabilities.map(
-                                                            (vulnerability) => (
-                                                                <div
-                                                                    key={
-                                                                        vulnerability.id
-                                                                    }
-                                                                    style={{
-                                                                        flex: "1 1 calc(33.33% - 6px)",
-                                                                        maxWidth:
-                                                                            "400px",
-                                                                    }}
-                                                                >
-                                                                    <CCard>
-                                                                        <CCardBody>
-                                                                            <h5>
-                                                                                Код
-                                                                                ошибки:{" "}
-                                                                                {
-                                                                                    vulnerability.identifier
-                                                                                }
-                                                                            </h5>
-                                                                            <p>
-                                                                                Уровень
-                                                                                ошибки:{" "}
-                                                                            </p>
-                                                                            <p>
-                                                                                {
-                                                                                    vulnerability.error_level
-                                                                                }
-                                                                            </p>
-                                                                            <div
-                                                                                style={{
-                                                                                    display:
-                                                                                        "flex",
-                                                                                    justifyContent:
-                                                                                        "space-between",
-                                                                                    alignItems:
-                                                                                        "center",
-                                                                                }}
-                                                                            >
-                                                                                <CButton
-                                                                                    color="primary"
-                                                                                    onClick={() =>
-                                                                                        openModal(
-                                                                                            vulnerability
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    Подробнее
-                                                                                </CButton>
-                                                                                <span
-                                                                                    style={{
-                                                                                        border: "1px solid rgba(139, 157, 255, 0.58)",
-                                                                                        padding:
-                                                                                            "7px",
-                                                                                        borderRadius:
-                                                                                            "2vh",
-                                                                                        fontWeight:
-                                                                                            "bold",
-                                                                                        backgroundColor:
-                                                                                            "rgba(139, 157, 255, 0.5)",
-                                                                                    }}
-                                                                                >
-                                                                                    №:{" "}
-                                                                                    {
-                                                                                        vulnerability.number
-                                                                                    }
-                                                                                </span>
-                                                                            </div>
-                                                                        </CCardBody>
-                                                                    </CCard>
-                                                                </div>
-                                                            )
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </CCardBody>
+                                            <ComparisonVulnerability
+                                                text="Неисправленные уязвимости"
+                                                selectedVulnerability={oldVulnerabilities}
+                                                openModal={openModal}
+                                            />
                                         </CCard>
                                     </CCol>
                                     <CCol>
                                         <CCard>
-                                            <CCardBody>
-                                                <h4>Исправленные уязвимости</h4>
-                                                {fixedVulnerabilities.length >
-                                                    0 && (
-                                                    <div
-                                                        style={{
-                                                            display: "flex",
-                                                            flexWrap: "wrap",
-                                                            gap: "11px",
-                                                            overflowX: "hidden",
-                                                        }}
-                                                    >
-                                                        {fixedVulnerabilities.map(
-                                                            (vulnerability) => (
-                                                                <div
-                                                                    key={
-                                                                        vulnerability.id
-                                                                    }
-                                                                    style={{
-                                                                        flex: "1 1 calc(33.33% - 6px)",
-                                                                        maxWidth:
-                                                                            "400px",
-                                                                    }}
-                                                                >
-                                                                    <CCard
-                                                                        style={{}}
-                                                                    >
-                                                                        <CCardBody>
-                                                                            <h5>
-                                                                                Код
-                                                                                ошибки:{" "}
-                                                                                {
-                                                                                    vulnerability.identifier
-                                                                                }
-                                                                            </h5>
-                                                                            <p>
-                                                                                Уровень
-                                                                                ошибки:{" "}
-                                                                            </p>
-                                                                            <p>
-                                                                                {
-                                                                                    vulnerability.error_level
-                                                                                }
-                                                                            </p>
-                                                                            <div
-                                                                                style={{
-                                                                                    display:
-                                                                                        "flex",
-                                                                                    justifyContent:
-                                                                                        "space-between",
-                                                                                    alignItems:
-                                                                                        "center",
-                                                                                }}
-                                                                            >
-                                                                                <CButton
-                                                                                    color="primary"
-                                                                                    onClick={() =>
-                                                                                        openModal(
-                                                                                            vulnerability
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    Подробнее
-                                                                                </CButton>
-                                                                                <span
-                                                                                    style={{
-                                                                                        border: "1px solid rgba(139, 157, 255, 0.58)",
-                                                                                        padding:
-                                                                                            "7px",
-                                                                                        borderRadius:
-                                                                                            "2vh",
-                                                                                        fontWeight:
-                                                                                            "bold",
-                                                                                        backgroundColor:
-                                                                                            "rgba(139, 157, 255, 0.5)",
-                                                                                    }}
-                                                                                >
-                                                                                    №:{" "}
-                                                                                    {
-                                                                                        vulnerability.number
-                                                                                    }
-                                                                                </span>
-                                                                            </div>
-                                                                        </CCardBody>
-                                                                    </CCard>
-                                                                </div>
-                                                            )
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </CCardBody>
+                                            <ComparisonVulnerability
+                                                text="Исправленные уязвимости"
+                                                selectedVulnerability={fixedVulnerabilities}
+                                                openModal={openModal}
+                                            />
                                         </CCard>
                                     </CCol>
                                 </CRow>
-                                <CModal
-                                    size="xl"
-                                    scrollable
+                                <ButtonDetails
                                     visible={visible}
                                     onClose={() => setVisible(false)}
-                                >
-                                    <CModalHeader
-                                        onClose={() => setVisible(false)}
-                                    >
-                                        <CModalTitle>
-                                            Подробная информация
-                                        </CModalTitle>
-                                    </CModalHeader>
-                                    <CModalBody>
-                                        {selectedVulnerability && (
-                                            <CTable
-                                                striped
-                                                hover
-                                                responsive
-                                                size="sm"
-                                            >
-                                                <thead>
-                                                    <tr>
-                                                        <th>
-                                                            Идентификатор
-                                                            уязвимости
-                                                        </th>
-                                                        <th>
-                                                            Название уязвимости
-                                                        </th>
-                                                        <th>Описание</th>
-                                                        <th>
-                                                            Возможные меры по
-                                                            устранению
-                                                        </th>
-                                                        <th>
-                                                            Ссылки на источники
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            {
-                                                                selectedVulnerability.identifier
-                                                            }
-                                                        </td>
-                                                        <td>
-                                                            {
-                                                                selectedVulnerability.name
-                                                            }
-                                                        </td>
-                                                        <td>
-                                                            {
-                                                                selectedVulnerability.description
-                                                            }
-                                                        </td>
-                                                        <td>
-                                                            {
-                                                                selectedVulnerability.remediation_measures
-                                                            }
-                                                        </td>
-                                                        <td>
-                                                            <ul>
-                                                                {selectedVulnerability.source_links.map(
-                                                                    (
-                                                                        link,
-                                                                        index
-                                                                    ) => (
-                                                                        <li
-                                                                            key={
-                                                                                index
-                                                                            }
-                                                                        >
-                                                                            <a
-                                                                                href={
-                                                                                    link
-                                                                                }
-                                                                                target="_blank"
-                                                                                rel="noopener noreferrer"
-                                                                            >
-                                                                                {
-                                                                                    link
-                                                                                }
-                                                                            </a>
-                                                                        </li>
-                                                                    )
-                                                                )}
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </CTable>
-                                        )}
-                                    </CModalBody>
-                                    <CModalFooter>
-                                        <CButton
-                                            color="secondary"
-                                            onClick={() => setVisible(false)}
-                                        >
-                                            Закрыть
-                                        </CButton>
-                                    </CModalFooter>
-                                </CModal>
+                                    selectedVulnerability={selectedVulnerability}
+                                />
                             </>
                         )}
                     </div>

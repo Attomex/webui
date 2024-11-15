@@ -34,6 +34,11 @@ import {
 
 import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner";
 import MessageAlert from "../shared/MessageAlert/MessageAlert";
+import ButtonDelete from "../shared/ButtonDelete/ButtonDelete";
+import ButtonDetails from "../shared/ButtonDetails/ButtonDetails";
+import VulnerabilityCard from "../shared/VulnerabilityCard/VulnerabilityCard";
+import SelectField from "../shared/SelectField/SelectField";
+import VulnerabilityInfo from "../shared/VulnerabilityInfo/VulnerabilityInfo";
 
 const DownloadReport = () => {
     const [selectedComputer, setSelectedComputer] = useState("");
@@ -230,104 +235,35 @@ const DownloadReport = () => {
                         <form onSubmit={handleSubmit}>
                             <table>
                                 <tbody>
-                                    <tr>
-                                        <td>
-                                            <label className={c.label__field}>
-                                                Идентификатор компьютера:
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className={c.select__field}
-                                                id="computer_identifier"
-                                                value={selectedComputer}
-                                                onChange={handleComputerChange}
-                                                required
-                                            >
-                                                <option value="">
-                                                    Выберите компьютер
-                                                </option>
-                                                {computerOptions.map(
-                                                    (computer) => (
-                                                        <option
-                                                            key={computer.id}
-                                                            value={
-                                                                computer.identifier
-                                                            }
-                                                        >
-                                                            {
-                                                                computer.identifier
-                                                            }
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <label className={c.label__field}>
-                                                Дата отчёта:
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className={c.select__field}
-                                                id="report_date"
-                                                value={selectedDate}
-                                                onChange={handleDateChange}
-                                                required
-                                                disabled={!selectedComputer}
-                                            >
-                                                <option value="">
-                                                    Выберите дату отчёта
-                                                </option>
-                                                {dateOptions.map(
-                                                    (date, index) => (
-                                                        <option
-                                                            key={index}
-                                                            value={date}
-                                                        >
-                                                            {date}
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <label className={c.label__field}>
-                                                Номер отчёта:
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className={c.select__field}
-                                                id="report_number"
-                                                value={selectedReportNumber}
-                                                onChange={
-                                                    handleReportNumberChange
-                                                }
-                                                required
-                                                disabled={!selectedDate}
-                                            >
-                                                <option value="">
-                                                    Выберите номер отчёта
-                                                </option>
-                                                {reportNumberOptions.map(
-                                                    (number, index) => (
-                                                        <option
-                                                            key={index}
-                                                            value={number}
-                                                        >
-                                                            {number}
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        </td>
-                                    </tr>
+                                    <SelectField
+                                        label="Идентификатор компьютера"
+                                        option="компьютер"
+                                        id="computer_identifier"
+                                        value={selectedComputer}
+                                        onChange={handleComputerChange}
+                                        options={computerOptions}
+                                        required
+                                    />
+                                    <SelectField
+                                        label="Дата отчёта"
+                                        option="дату отчёта"
+                                        id="report_number"
+                                        value={selectedDate}
+                                        onChange={handleDateChange}
+                                        options={dateOptions}
+                                        required
+                                        disabled={!selectedComputer}
+                                    />
+                                    <SelectField
+                                        label="Номер отчёта"
+                                        option="номер отчёта"
+                                        id="report_number"
+                                        value={selectedReportNumber}
+                                        onChange={handleReportNumberChange}
+                                        options={reportNumberOptions}
+                                        required
+                                        disabled={!selectedDate}
+                                    />
                                 </tbody>
                             </table>
                             <Button
@@ -356,166 +292,19 @@ const DownloadReport = () => {
                         {message && <MessageAlert message={message} variant={"success"}/>}
                         {error && <MessageAlert message={error} variant={"danger"}/>}
 
-                        {vulnerabilities.length > 0 && (
-                            <div>
-                                <p>
-                                    Идентификатор компьютера: {selectedComputer}
-                                </p>
-                                <p>Дата отчёта: {selectedDate}</p>
-                                <p>Номер отчёта: {selectedReportNumber}</p>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexWrap: "wrap",
-                                        gap: "11px",
-                                        overflowX: "hidden",
-                                    }}
-                                >
-                                    {vulnerabilities.map((vulnerability) => (
-                                        <div
-                                            key={vulnerability.number}
-                                            style={{
-                                                flex: "1 1 calc(33.33% - 6px)",
-                                                maxWidth: "400px",
-                                            }}
-                                        >
-                                            <CCard>
-                                                <CCardBody>
-                                                    <h5>
-                                                        Код ошибки:{" "}
-                                                        {
-                                                            vulnerability.identifier
-                                                        }
-                                                    </h5>
-                                                    <p>
-                                                        Уровень ошибки:{" "}
-                                                        {
-                                                            vulnerability.error_level
-                                                        }
-                                                    </p>
-                                                    <div
-                                                        style={{
-                                                            display: "flex",
-                                                            justifyContent:
-                                                                "space-between",
-                                                            alignItems:
-                                                                "center",
-                                                        }}
-                                                    >
-                                                        <CButton
-                                                            color="primary"
-                                                            onClick={() =>
-                                                                openModal(
-                                                                    vulnerability
-                                                                )
-                                                            }
-                                                        >
-                                                            Подробнее
-                                                        </CButton>
-                                                        <span
-                                                            style={{
-                                                                border: "1px solid rgba(139, 157, 255, 0.58)",
-                                                                padding: "7px",
-                                                                borderRadius:
-                                                                    "2vh",
-                                                                fontWeight:
-                                                                    "bold",
-                                                                backgroundColor:
-                                                                    "rgba(139, 157, 255, 0.5)",
-                                                            }}
-                                                        >
-                                                            Номер:{" "}
-                                                            {
-                                                                vulnerability.number
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                </CCardBody>
-                                            </CCard>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        <CModal
-                            size="xl"
-                            scrollable
+                        {vulnerabilities.length > 0 && <VulnerabilityInfo
+                            vulnerabilities={vulnerabilities}
+                            selectedComputer={selectedComputer}
+                            selectedDate={selectedDate}
+                            selectedReportNumber={selectedReportNumber}
+                            openModal={openModal}
+                            />
+                        }
+                        <ButtonDetails
                             visible={visible}
                             onClose={() => setVisible(false)}
-                        >
-                            <CModalHeader onClose={() => setVisible(false)}>
-                                <CModalTitle>Подробная информация</CModalTitle>
-                            </CModalHeader>
-                            <CModalBody>
-                                {selectedVulnerability && (
-                                    <CTable striped hover responsive size="sm">
-                                        <thead>
-                                            <tr>
-                                                <th>
-                                                    Идентификатор уязвимости
-                                                </th>
-                                                <th>Название уязвимости</th>
-                                                <th>Описание</th>
-                                                <th>
-                                                    Возможные меры по устранению
-                                                </th>
-                                                <th>Ссылки на источники</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    {
-                                                        selectedVulnerability.identifier
-                                                    }
-                                                </td>
-                                                <td>
-                                                    {selectedVulnerability.name}
-                                                </td>
-                                                <td>
-                                                    {
-                                                        selectedVulnerability.description
-                                                    }
-                                                </td>
-                                                <td>
-                                                    {
-                                                        selectedVulnerability.remediation_measures
-                                                    }
-                                                </td>
-                                                <td>
-                                                    <ul>
-                                                        {selectedVulnerability.source_links.map(
-                                                            (link, index) => (
-                                                                <li key={index}>
-                                                                    <a
-                                                                        href={
-                                                                            link
-                                                                        }
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                    >
-                                                                        {link}
-                                                                    </a>
-                                                                </li>
-                                                            )
-                                                        )}
-                                                    </ul>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </CTable>
-                                )}
-                            </CModalBody>
-                            <CModalFooter>
-                                <CButton
-                                    color="secondary"
-                                    onClick={() => setVisible(false)}
-                                >
-                                    Закрыть
-                                </CButton>
-                            </CModalFooter>
-                        </CModal>
+                            selectedVulnerability={selectedVulnerability}
+                        />
                     </div>
                 </div>
                 <br />
