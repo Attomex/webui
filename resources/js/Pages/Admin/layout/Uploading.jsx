@@ -9,7 +9,7 @@ import {
 import { Button } from "react-bootstrap";
 import "../scss/style.scss";
 import { parseHTML } from "../scripts/parseHTML";
-import c from "./layoutModules/Uploading.module.css";
+import c from "./layoutModules/Uploading.module.css"
 import UploadingOptions from "../components/UploadingOptions";
 
 import { useComputerOptions } from "../hooks/useReportsData";
@@ -28,7 +28,19 @@ const Uploading = () => {
 
 
     const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            const fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+
+            if (fileExtension === "html") {
+                setFile(selectedFile);
+                setError("");
+            } else {
+                setError("Пожалуйста, выберите файл с расширением .html");
+                setFile(null);
+                document.getElementById("report_file").value = "";
+            }
+        }
     };
 
     const handleIdentifierChange = (event) => {

@@ -23,62 +23,74 @@ class ReportController extends Controller
 {
     public function store(Request $request)
     {
-        $parsedData = $request->json()->all();
-
-        // Проверка на существование отчёта с таким номером
-        $existingReport = Report::where('report_number', $parsedData['reportNumber'])->first();
-        if ($existingReport) {
-            return response()->json(['message' => "Отчёт с таким номером уже был загружен!", 'status' => '400'], Response::HTTP_BAD_REQUEST);
-        }
-
-        // Создание или получение компьютера
-        $computer = Computer::firstOrCreate(['identifier' => $parsedData['computerIdentifier']]);
-
-        // Создание отчёта
-        $report = $computer->reports()->create([
-            'report_date' => $parsedData['reportDate'],
-            'report_number' => $parsedData['reportNumber'],
-        ]);
-
-        foreach ($parsedData["vulnerabilities"] as $vulnerabilityData) {
-            // Создание или получение идентификатора
-            $identifier = Identifier::firstOrCreate(['number' => $vulnerabilityData['id']]);
-
-            // Проверка на существование уязвимости с такими же значениями всех полей
-            $vulnerability = Vulnerability::where('error_level', $vulnerabilityData['error_level'])
-                ->where('description', $vulnerabilityData['description'])
-                ->where('source_links', implode(',', $vulnerabilityData['references']))
-                ->where('name', $vulnerabilityData['title'])
-                ->where('remediation_measures', $vulnerabilityData['measures'])
-                ->where('identifiers_id', $identifier->id)
-                ->first();
-
-            if (!$vulnerability) {
-                // Создание новой уязвимости, если её нет
-                $vulnerability = Vulnerability::create([
-                    'error_level' => $vulnerabilityData['error_level'],
-                    'description' => $vulnerabilityData['description'],
-                    'source_links' => implode(',', $vulnerabilityData['references']),
-                    'name' => $vulnerabilityData['title'],
-                    'remediation_measures' => $vulnerabilityData['measures'],
-                    'identifiers_id' => $identifier->id,
-                ]);
+        DB::beginTransaction();
+    
+        try {
+            $parsedData = $request->json()->all();
+    
+            // Проверка на существование отчёта с таким номером
+            $existingReport = Report::where('report_number', $parsedData['reportNumber'])->first();
+            if ($existingReport) {
+                return response()->json(['message' => "Отчёт с таким номером уже был загружен!", 'status' => '400'], Response::HTTP_BAD_REQUEST);
             }
-
-            // Присоединение уязвимости к отчёту
-            $report->vulnerabilities()->attach($vulnerability->id);
+    
+            // Создание или получение компьютера
+            $computer = Computer::firstOrCreate(['identifier' => $parsedData['computerIdentifier']]);
+    
+            // Создание отчёта
+            $report = $computer->reports()->create([
+                'report_date' => $parsedData['reportDate'],
+                'report_number' => $parsedData['reportNumber'],
+            ]);
+    
+            foreach ($parsedData["vulnerabilities"] as $vulnerabilityData) {
+                // Создание или получение идентификатора
+                $identifier = Identifier::firstOrCreate(['number' => $vulnerabilityData['id']]);
+    
+                // Проверка на существование уязвимости с такими же значениями всех полей
+                $vulnerability = Vulnerability::where('error_level', $vulnerabilityData['error_level'])
+                    ->where('description', $vulnerabilityData['description'])
+                    ->where('source_links', implode(',', $vulnerabilityData['references']))
+                    ->where('name', $vulnerabilityData['title'])
+                    ->where('remediation_measures', $vulnerabilityData['measures'])
+                    ->where('identifiers_id', $identifier->id)
+                    ->first();
+    
+                if (!$vulnerability) {
+                    // Создание новой уязвимости, если её нет
+                    $vulnerability = Vulnerability::create([
+                        'error_level' => $vulnerabilityData['error_level'],
+                        'description' => $vulnerabilityData['description'],
+                        'source_links' => implode(',', $vulnerabilityData['references']),
+                        'name' => $vulnerabilityData['title'],
+                        'remediation_measures' => $vulnerabilityData['measures'],
+                        'identifiers_id' => $identifier->id,
+                    ]);
+                }
+    
+                // Присоединение уязвимости к отчёту
+                $report->vulnerabilities()->attach($vulnerability->id);
+            }
+    
+            // Преобразуем массив в JSON-строку
+            $jsonString = json_encode($parsedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            // Определяем путь для сохранения файла
+            $filePath = storage_path('\\app\\reports\\' . uniqid() . '.json');
+            // Сохраняем JSON-строку в файл
+            file_put_contents($filePath, $jsonString);
+    
+            DB::commit();
+    
+            return response()->json(['message' => "Отчет успешно загружен"]);
+        } catch(Exception $e) {
+            DB::rollBack();
+    
+            // Логирование ошибки
+            \Log::error('Ошибка при загрузке отчета: ' . $e->getMessage());
+    
+            return response()->json(['message' => "Произошла ошибка при загрузке отчета", 'status' => '500'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        // Преобразуем массив в JSON-строку
-        $jsonString = json_encode($parsedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        // Определяем путь для сохранения файла
-        $filePath = storage_path('\\app\\reports\\' . uniqid() . '.json');
-        // Сохраняем JSON-строку в файл
-        file_put_contents($filePath, $jsonString);
-
-        return response()->json(['message' => "Отчет успешно загружен"]);
     }
-
     public function view(Request $request)
     {
         $computerIdentifier = $request->input('computer_identifier');
