@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     AppContent,
     AppSidebar,
@@ -7,20 +7,6 @@ import {
 } from "../components/index";
 import "../scss/style.scss";
 import { Button } from "react-bootstrap";
-import {
-    CRow,
-    CCol,
-    CCard,
-    CCardBody,
-    CButton,
-    CModal,
-    CModalHeader,
-    CModalTitle,
-    CModalBody,
-    CModalFooter,
-    CTable,
-} from "@coreui/react";
-import c from "./layoutModules/ViewReports.module.css";
 import * as XLSX from "xlsx";
 import "./layoutModules/ViewReports.css";
 
@@ -34,11 +20,11 @@ import {
 
 import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner";
 import MessageAlert from "../shared/MessageAlert/MessageAlert";
-import ButtonDelete from "../shared/ButtonDelete/ButtonDelete";
 import ButtonDetails from "../shared/ButtonDetails/ButtonDetails";
-import VulnerabilityCard from "../shared/VulnerabilityCard/VulnerabilityCard";
 import SelectField from "../shared/SelectField/SelectField";
 import VulnerabilityInfo from "../shared/VulnerabilityInfo/VulnerabilityInfo";
+import downloadExcel from "../scripts/downloadExcel";
+import DownloadModal from "../shared/DownloadModal/DownloadModal";
 
 const DownloadReport = () => {
     const [selectedComputer, setSelectedComputer] = useState("");
@@ -60,6 +46,19 @@ const DownloadReport = () => {
 
     const [visible, setVisible] = useState(false);
     const [selectedVulnerability, setSelectedVulnerability] = useState(null);
+
+    // Модальное окно скачивания отчёта
+    const [visibleModalDwnld, setVisibleModalDwnld] = useState(false);
+    const [selectedErrorLevels, setSelectedErrorLevels] = useState(["Критический", "Высокий", "Средний", "Низкий"]);
+    const [selectedColumns, setSelectedColumns] = useState([
+        "Уровень ошибки",
+        "Идентификатор уязвимости",
+        "Название уязвимости",
+        "Описание",
+        "Возможные меры по устранению",
+        "Ссылки на источники",
+    ]);
+
 
     const openModal = (vulnerability) => {
         setSelectedVulnerability(vulnerability);
@@ -127,150 +126,32 @@ const DownloadReport = () => {
         setSelectedReportNumber("");
     };
 
-    function getCurrentDate(separator = "") {
-        let newDate = new Date();
-        let date = newDate.getDate();
-        let month = newDate.getMonth() + 1;
-        let year = newDate.getFullYear();
-
-        return `${year}${separator}${
-            month < 10 ? `0${month}` : `${month}`
-        }${separator}${date}`;
-    }
-
-    const downloadExcel = () => {
-        let Date_now = getCurrentDate(".");
-
-        // Создаем рабочую книгу
-        const workbook = XLSX.utils.book_new();
-
-        // Добавляем информацию о компьютере на отдельный лист
-        const infoSheet = XLSX.utils.aoa_to_sheet([
-            ["Идентификатор компьютера", selectedComputer],
-            ["Номер отчёта", selectedReportNumber],
-            ["Дата формирования отчёта", selectedDate],
-            ["Дата загрузки отчёта с сервера", Date_now],
-        ]);
-        XLSX.utils.book_append_sheet(workbook, infoSheet, "Информация");
-
-        // Определяем уровни ошибок
-        const errorLevels = ["Критический", "Высокий", "Средний", "Низкий"];
-
-        // Создаем стили для каждого уровня ошибок
-        const styles = {
-            Критический: { fill: { fgColor: { rgb: "FF0000" } } }, // Красный
-            Высокий: { fill: { fgColor: { rgb: "FFA500" } } }, // Оранжевый
-            Средний: { fill: { fgColor: { rgb: "FFFF00" } } }, // Желтый
-            Низкий: { fill: { fgColor: { rgb: "008000" } } }, // Зеленый
-        };
-
-        // Создаем листы для каждого уровня ошибок
-        errorLevels.forEach((errorLevel) => {
-            const tableArray = [];
-            // Добавляем заголовки
-            tableArray.push([
-                "Уровень ошибки",
-                "Идентификатор уязвимости",
-                "Название уязвимости",
-                "Описание",
-                "Возможные меры по устранению",
-                "Ссылки на источники",
-            ]);
-
-            // Фильтруем уязвимости по уровню ошибки
-            const filteredVulnerabilities = vulnerabilities.filter(
-                (vulnerability) => vulnerability.error_level === errorLevel
-            );
-
-            // Добавляем данные
-            filteredVulnerabilities.forEach((vulnerability) => {
-                const rowData = [
-                    vulnerability.error_level,
-                    vulnerability.identifier,
-                    vulnerability.name,
-                    vulnerability.description,
-                    vulnerability.remediation_measures,
-                    vulnerability.source_links.join("\n"), // Объединяем ссылки с новой строки
-                ];
-                tableArray.push(rowData);
-            });
-
-            // Создаем рабочий лист из данных
-            const tableSheet = XLSX.utils.aoa_to_sheet(tableArray);
-
-            // Устанавливаем ширину столбцов
-            tableSheet["!cols"] = [
-                { width: 15 }, // Ширина для столбца A
-                { width: 30 }, // Ширина для столбца B
-                { width: 30 }, // Ширина для столбца C
-                { width: 30 }, // Ширина для столбца D
-                { width: 45 }, // Ширина для столбца E
-                { width: 50 }, // Ширина для столбца F
-            ];
-
-            // // Применяем перенос текста и высоту строк для лучшего отображения
-            // const rows = tableArray.length;
-            // for (let r = 0; r < rows; r++) {
-            //     for (let c = 0; c < 5; c++) {
-            //         const cellAddress = XLSX.utils.encode_cell({ c: c, r: r });
-            //         let cell = tableSheet[cellAddress];
-            //         if (cell) {
-            //             if (!cell.s) cell.s = {};
-            //             cell.s.alignment = { wrapText: true };
-            //         }
-            //     }
-            // }
-
-            // // Применяем стили к строкам
-            // filteredVulnerabilities.forEach((vulnerability, index) => {
-            //     const style = styles[vulnerability.error_level];
-            //     for (let c = 0; c < 6; c++) {
-            //         const cellAddress = XLSX.utils.encode_cell({
-            //             c: c,
-            //             r: index + 1,
-            //         }); // +1 для учета заголовка
-            //         const cell = tableSheet[cellAddress];
-            //         if (cell) {
-            //             if (!cell.s) cell.s = {};
-            //             Object.assign(cell.s, style);
-            //         }
-            //     }
-            // });
-            // Формируем название листа
-            
-            let sheetName = `${errorLevel} ошибки`;
-            if (errorLevel === "Критический") {
-                sheetName = "Критические ошибки";
-            } else if (errorLevel === "Высокий") {
-                sheetName = "Высокие ошибки";
-            } else if (errorLevel === "Средний") {
-                sheetName = "Средние ошибки";
-            } else if (errorLevel === "Низкий") {
-                sheetName = "Низкие ошибки";
-            }
-
-            // Добавляем лист в книгу
-            XLSX.utils.book_append_sheet(workbook, tableSheet, sheetName);
-        });
-
-        // Генерируем файл и запускаем скачивание
-        const excelBuffer = XLSX.write(workbook, {
-            bookType: "xlsx",
-            type: "array",
-        });
-
-        const blob = new Blob([excelBuffer], {
-            type: "application/octet-stream",
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${selectedComputer}_${selectedReportNumber}_${Date_now}.xlsx`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    const toggleModal = () => {
+        setVisibleModalDwnld(true);
     };
+
+    // Используем useEffect для управления состоянием visible
+    useEffect(() => {
+        if (visibleModalDwnld) {
+            // Если модальное окно открыто, ничего не делаем
+            return;
+        }
+        // Если модальное окно закрыто, сбрасываем выбранные параметры
+        setSelectedErrorLevels(["Критический", "Высокий", "Средний", "Низкий"]);
+        setSelectedColumns([
+            "Уровень ошибки",
+            "Идентификатор уязвимости",
+            "Название уязвимости",
+            "Описание",
+            "Возможные меры по устранению",
+            "Ссылки на источники",
+        ]);
+    }, [visibleModalDwnld]);
+
+    const handleDownload = () => {
+        downloadExcel(selectedErrorLevels, selectedColumns, selectedComputer, selectedReportNumber, selectedDate, vulnerabilities);
+        setVisibleModalDwnld(false);
+    }
 
     return (
         <div style={{ overflowX: "hidden" }}>
@@ -336,11 +217,20 @@ const DownloadReport = () => {
                                 as="input"
                                 className="downloadExcel"
                                 type="button"
-                                onClick={downloadExcel}
+                                onClick={toggleModal}
                                 disabled={download}
                                 value="Скачать отчёт"
                             ></Button>
                         </form>
+                        <DownloadModal
+                            visible={visibleModalDwnld}
+                            onClose={() => setVisibleModalDwnld(false)}
+                            onDownload={handleDownload}
+                            selectedErrorLevels={selectedErrorLevels}
+                            setSelectedErrorLevels={setSelectedErrorLevels}
+                            selectedColumns={selectedColumns}
+                            setSelectedColumns={setSelectedColumns}
+                        />
                         {loading && <LoadingSpinner text="Загружается..." />}
                         {message && (
                             <MessageAlert
