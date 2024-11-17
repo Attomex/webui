@@ -27,9 +27,7 @@ import axios from "axios";
 import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner";
 import MessageAlert from "../shared/MessageAlert/MessageAlert";
 
-import {
-    useComputerOptions
-} from "../hooks/useReportsData";
+import { useComputerOptions } from "../hooks/useReportsData";
 import useComparisonReportData from "../hooks/useComparisonReportData";
 import ButtonDetails from "../shared/ButtonDetails/ButtonDetails";
 import SelectField from "../shared/SelectField/SelectField";
@@ -56,7 +54,11 @@ const Comparison = () => {
         oldDateOptions,
         newReportNumberOptions,
         oldReportNumberOptions,
-    } = useComparisonReportData(selectedComputer, selectedNewDate, selectedOldDate);
+    } = useComparisonReportData(
+        selectedComputer,
+        selectedNewDate,
+        selectedOldDate
+    );
     // Сообщения
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
@@ -167,7 +169,7 @@ const Comparison = () => {
                 <AppHeader />
                 <div className="body flex-grow-1">
                     <AppContent />
-                    <div style={{ marginLeft: "10px",  marginRight: "15px" }}>
+                    <div style={{ marginLeft: "10px", marginRight: "15px" }}>
                         <h2>Сравнение двух отчётов</h2>
                         <h1 style={{ color: "grey", fontSize: "12px" }}>
                             * Сравнение производится по одному идентификатору
@@ -243,44 +245,51 @@ const Comparison = () => {
                                 value="Сравнить отчёты"
                             />
                         </form>
-                        {comparisonStatus && <LoadingSpinner text="Происходит сравнение отчётов, пожалуйста подождите немного"/>}
-                        {message && <MessageAlert message={message} variant={"success"}/>}
-                        {error && <MessageAlert message={error} variant={"danger"}/>}
+                        {comparisonStatus && (
+                            <LoadingSpinner text="Происходит сравнение отчётов, пожалуйста подождите немного" />
+                        )}
+                        {message && (
+                            <MessageAlert
+                                message={message}
+                                variant={"success"}
+                            />
+                        )}
+                        {error && (
+                            <MessageAlert message={error} variant={"danger"} />
+                        )}
                         {message && (
                             <>
                                 <CRow>
-                                    <CCol>
-                                        <CCard>
-                                            <ComparisonVulnerability
-                                                text="Появившиеся уязвимости"
-                                                selectedVulnerability={newVulnerabilities}
-                                                openModal={openModal}
-                                            />
-                                        </CCard>
-                                    </CCol>
-                                    <CCol>
-                                        <CCard>
-                                            <ComparisonVulnerability
-                                                text="Неисправленные уязвимости"
-                                                selectedVulnerability={oldVulnerabilities}
-                                                openModal={openModal}
-                                            />
-                                        </CCard>
-                                    </CCol>
-                                    <CCol>
-                                        <CCard>
-                                            <ComparisonVulnerability
-                                                text="Исправленные уязвимости"
-                                                selectedVulnerability={fixedVulnerabilities}
-                                                openModal={openModal}
-                                            />
-                                        </CCard>
-                                    </CCol>
+                                    <ComparisonVulnerability
+                                        text="Появившиеся уязвимости"
+                                        selectedVulnerability={
+                                            newVulnerabilities
+                                        }
+                                        openModal={openModal}
+                                    />
+
+                                    <ComparisonVulnerability
+                                        text="Неисправленные уязвимости"
+                                        selectedVulnerability={
+                                            oldVulnerabilities
+                                        }
+                                        openModal={openModal}
+                                    />
+
+                                    <ComparisonVulnerability
+                                        text="Исправленные уязвимости"
+                                        selectedVulnerability={
+                                            fixedVulnerabilities
+                                        }
+                                        openModal={openModal}
+                                    />
                                 </CRow>
                                 <ButtonDetails
                                     visible={visible}
                                     onClose={() => setVisible(false)}
-                                    selectedVulnerability={selectedVulnerability}
+                                    selectedVulnerability={
+                                        selectedVulnerability
+                                    }
                                 />
                             </>
                         )}
