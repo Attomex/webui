@@ -35,6 +35,7 @@
         "crypto-js": "^4.2.0",
         "domhandler": "^5.0.3",
         "domutils": "^3.1.0",
+        "exceljs": "^4.4.0",
         "fs": "^0.0.1-security",
         "html2canvas": "^1.4.1",
         "htmlparser2": "^9.1.0",
