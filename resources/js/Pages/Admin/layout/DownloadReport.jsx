@@ -126,10 +126,6 @@ const DownloadReport = () => {
         setSelectedReportNumber("");
     };
 
-    const toggleModal = () => {
-        setVisibleModalDwnld(true);
-    };
-
     // Используем useEffect для управления состоянием visible
     useEffect(() => {
         if (visibleModalDwnld) {
@@ -217,7 +213,7 @@ const DownloadReport = () => {
                                 as="input"
                                 className="downloadExcel"
                                 type="button"
-                                onClick={toggleModal}
+                                onClick={() => setVisibleModalDwnld(true)}
                                 disabled={download}
                                 value="Скачать отчёт"
                             ></Button>
