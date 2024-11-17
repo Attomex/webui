@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminGraphs;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Models\VulnerabilityBase;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,7 +18,11 @@ Route::get('/cards', [ReportController::class, 'index']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/admin', function () {
-        return Inertia::render('Admin/AdminPanel');
+        
+        $latest = VulnerabilityBase::latest('date')->first()->toArray();
+        return Inertia::render('Admin/AdminPanel', [
+            'latest' => $latest
+        ]);
     })->name('admin');
 
     Route::get('/admin/view', function () {

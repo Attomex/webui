@@ -3,9 +3,9 @@ import './scss/style.scss'
 
 import Main from './Main'
 
- const AdminPanel = () => {
+ const AdminPanel = ({ latest }) => {
   return (
-    <Main></Main>
+    <Main latest={latest}></Main>
   )
 }
 
