@@ -86,7 +86,7 @@ class ReportController extends Controller
             DB::rollBack();
     
             // Логирование ошибки
-            \Log::error('Ошибка при загрузке отчета: ' . $e->getMessage());
+            // \Log::error('Ошибка при загрузке отчета: ' . $e->getMessage());
     
             return response()->json(['message' => "Произошла ошибка при загрузке отчета", 'status' => '500'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

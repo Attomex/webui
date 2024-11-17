@@ -26,11 +26,11 @@ import "./layoutModules/ViewReports.css";
 
 import axios from "axios";
 
-import { 
+import {
     useComputerOptions,
     useDateOptions,
-    useReportNumberOptions
- } from "../hooks/useReportsData";
+    useReportNumberOptions,
+} from "../hooks/useReportsData";
 
 import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner";
 import MessageAlert from "../shared/MessageAlert/MessageAlert";
@@ -47,7 +47,10 @@ const DownloadReport = () => {
 
     const computerOptions = useComputerOptions();
     const dateOptions = useDateOptions(selectedComputer);
-    const reportNumberOptions = useReportNumberOptions(selectedComputer, selectedDate);
+    const reportNumberOptions = useReportNumberOptions(
+        selectedComputer,
+        selectedDate
+    );
 
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
@@ -150,55 +153,105 @@ const DownloadReport = () => {
         ]);
         XLSX.utils.book_append_sheet(workbook, infoSheet, "Информация");
 
-        // Преобразуем данные из vulnerabilities в рабочий лист
-        const tableArray = [];
-        // Добавляем заголовки
-        tableArray.push([
-            "Идентификатор уязвимости",
-            "Название уязвимости",
-            "Описание",
-            "Возможные меры по устранению",
-            "Ссылки на источники",
-        ]);
-        // Добавляем данные
-        vulnerabilities.forEach((vulnerability) => {
-            const rowData = [
-                vulnerability.identifier,
-                vulnerability.name,
-                vulnerability.description,
-                vulnerability.remediation_measures,
-                vulnerability.source_links.join("\n"), // Объединяем ссылки с новой строки
+        // Определяем уровни ошибок
+        const errorLevels = ["Критический", "Высокий", "Средний", "Низкий"];
+
+        // Создаем стили для каждого уровня ошибок
+        const styles = {
+            Критический: { fill: { fgColor: { rgb: "FF0000" } } }, // Красный
+            Высокий: { fill: { fgColor: { rgb: "FFA500" } } }, // Оранжевый
+            Средний: { fill: { fgColor: { rgb: "FFFF00" } } }, // Желтый
+            Низкий: { fill: { fgColor: { rgb: "008000" } } }, // Зеленый
+        };
+
+        // Создаем листы для каждого уровня ошибок
+        errorLevels.forEach((errorLevel) => {
+            const tableArray = [];
+            // Добавляем заголовки
+            tableArray.push([
+                "Уровень ошибки",
+                "Идентификатор уязвимости",
+                "Название уязвимости",
+                "Описание",
+                "Возможные меры по устранению",
+                "Ссылки на источники",
+            ]);
+
+            // Фильтруем уязвимости по уровню ошибки
+            const filteredVulnerabilities = vulnerabilities.filter(
+                (vulnerability) => vulnerability.error_level === errorLevel
+            );
+
+            // Добавляем данные
+            filteredVulnerabilities.forEach((vulnerability) => {
+                const rowData = [
+                    vulnerability.error_level,
+                    vulnerability.identifier,
+                    vulnerability.name,
+                    vulnerability.description,
+                    vulnerability.remediation_measures,
+                    vulnerability.source_links.join("\n"), // Объединяем ссылки с новой строки
+                ];
+                tableArray.push(rowData);
+            });
+
+            // Создаем рабочий лист из данных
+            const tableSheet = XLSX.utils.aoa_to_sheet(tableArray);
+
+            // Устанавливаем ширину столбцов
+            tableSheet["!cols"] = [
+                { width: 15 }, // Ширина для столбца A
+                { width: 30 }, // Ширина для столбца B
+                { width: 30 }, // Ширина для столбца C
+                { width: 30 }, // Ширина для столбца D
+                { width: 45 }, // Ширина для столбца E
+                { width: 50 }, // Ширина для столбца F
             ];
-            tableArray.push(rowData);
-        });
 
-        // Создаем рабочий лист из данных
-        const tableSheet = XLSX.utils.aoa_to_sheet(tableArray);
+            // // Применяем перенос текста и высоту строк для лучшего отображения
+            // const rows = tableArray.length;
+            // for (let r = 0; r < rows; r++) {
+            //     for (let c = 0; c < 5; c++) {
+            //         const cellAddress = XLSX.utils.encode_cell({ c: c, r: r });
+            //         let cell = tableSheet[cellAddress];
+            //         if (cell) {
+            //             if (!cell.s) cell.s = {};
+            //             cell.s.alignment = { wrapText: true };
+            //         }
+            //     }
+            // }
 
-        // Устанавливаем ширину столбцов
-        tableSheet["!cols"] = [
-            { width: 30 }, // Ширина для столбца A
-            { width: 30 }, // Ширина для столбца B
-            { width: 30 }, // Ширина для столбца C
-            { width: 45 }, // Ширина для столбца D
-            { width: 50 }, // Ширина для столбца E
-        ];
-
-        // Применяем перенос текста и высоту строк для лучшего отображения
-        const rows = tableArray.length;
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < 5; c++) {
-                const cellAddress = XLSX.utils.encode_cell({ c: c, r: r });
-                const cell = tableSheet[cellAddress];
-                if (cell) {
-                    if (!cell.s) cell.s = {};
-                    cell.s.alignment = { wrapText: true };
-                }
+            // // Применяем стили к строкам
+            // filteredVulnerabilities.forEach((vulnerability, index) => {
+            //     const style = styles[vulnerability.error_level];
+            //     for (let c = 0; c < 6; c++) {
+            //         const cellAddress = XLSX.utils.encode_cell({
+            //             c: c,
+            //             r: index + 1,
+            //         }); // +1 для учета заголовка
+            //         const cell = tableSheet[cellAddress];
+            //         if (cell) {
+            //             if (!cell.s) cell.s = {};
+            //             Object.assign(cell.s, style);
+            //         }
+            //     }
+            // });
+            // Формируем название листа
+            
+            let sheetName = `${errorLevel} ошибки`;
+            if (errorLevel === "Критический") {
+                sheetName = "Критические ошибки";
+            } else if (errorLevel === "Высокий") {
+                sheetName = "Высокие ошибки";
+            } else if (errorLevel === "Средний") {
+                sheetName = "Средние ошибки";
+            } else if (errorLevel === "Низкий") {
+                sheetName = "Низкие ошибки";
             }
-        }
 
-        // Добавляем лист в книгу
-        XLSX.utils.book_append_sheet(workbook, tableSheet, "Уязвимости");
+            // Добавляем лист в книгу
+            XLSX.utils.book_append_sheet(workbook, tableSheet, sheetName);
+        });
 
         // Генерируем файл и запускаем скачивание
         const excelBuffer = XLSX.write(workbook, {
@@ -288,18 +341,26 @@ const DownloadReport = () => {
                                 value="Скачать отчёт"
                             ></Button>
                         </form>
-                        {loading && <LoadingSpinner text="Загружается..."/>}
-                        {message && <MessageAlert message={message} variant={"success"}/>}
-                        {error && <MessageAlert message={error} variant={"danger"}/>}
-
-                        {vulnerabilities.length > 0 && <VulnerabilityInfo
-                            vulnerabilities={vulnerabilities}
-                            selectedComputer={selectedComputer}
-                            selectedDate={selectedDate}
-                            selectedReportNumber={selectedReportNumber}
-                            openModal={openModal}
+                        {loading && <LoadingSpinner text="Загружается..." />}
+                        {message && (
+                            <MessageAlert
+                                message={message}
+                                variant={"success"}
                             />
-                        }
+                        )}
+                        {error && (
+                            <MessageAlert message={error} variant={"danger"} />
+                        )}
+
+                        {vulnerabilities.length > 0 && (
+                            <VulnerabilityInfo
+                                vulnerabilities={vulnerabilities}
+                                selectedComputer={selectedComputer}
+                                selectedDate={selectedDate}
+                                selectedReportNumber={selectedReportNumber}
+                                openModal={openModal}
+                            />
+                        )}
                         <ButtonDetails
                             visible={visible}
                             onClose={() => setVisible(false)}
