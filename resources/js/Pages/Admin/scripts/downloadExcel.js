@@ -35,12 +35,12 @@ const downloadExcel = (selectedErrorLevels, selectedColumns, selectedComputer, s
     infoSheet.addRow(["Дата загрузки отчёта с сервера", Date_now]);
 
     // Создаем стили для каждого уровня ошибок
-    const styles = {
-        "Критический": { type: 'pattern', pattern: 'solid', fgColor: { argb: '80FF0000' } }, // Красный
-        "Высокий": { type: 'pattern', pattern: 'solid', fgColor: { argb: '80FFA500' } }, // Оранжевый
-        "Средний": { type: 'pattern', pattern: 'solid', fgColor: { argb: '80FFFF00' } }, // Желтый
-        "Низкий": { type: 'pattern', pattern: 'solid', fgColor: { argb: '80008000' } }, // Зеленый
-    };
+    // const styles = {
+    //     "Критический": { type: 'pattern', pattern: 'solid', fgColor: { argb: '80FF0000' } }, // Красный
+    //     "Высокий": { type: 'pattern', pattern: 'solid', fgColor: { argb: '80FFA500' } }, // Оранжевый
+    //     "Средний": { type: 'pattern', pattern: 'solid', fgColor: { argb: '80FFFF00' } }, // Желтый
+    //     "Низкий": { type: 'pattern', pattern: 'solid', fgColor: { argb: '80008000' } }, // Зеленый
+    // };
 
     // Создаем листы для каждого уровня ошибок
     selectedErrorLevels.forEach(errorLevel => {
@@ -78,7 +78,7 @@ const downloadExcel = (selectedErrorLevels, selectedColumns, selectedComputer, s
             // Устанавливаем автоперенос текста для каждой ячейки
             row.eachCell({ includeEmpty: true }, cell => {
                 cell.alignment = { wrapText: true };
-                cell.fill = styles[errorLevel];
+                // cell.fill = styles[errorLevel];
             });
         });
     });
