@@ -22,7 +22,29 @@ export function parseHTML(htmlContent, computerIdentifier) {
   reportDate = moment(reportDate, 'DD.MM.YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
 
   const vulnerabilities = [];
+  const vulnerabilityFiles = {};
 
+  // Парсинг первой таблицы с уязвимостями
+  const vulnerabilitiesTable = doc.querySelector('.vulnerabilitiesTbl');
+  const vulnerabilityRows = vulnerabilitiesTable.querySelectorAll('tr');
+
+  let currentVulnerabilityId = null;
+
+  vulnerabilityRows.forEach(row => {
+    const idElem = row.querySelector('td.bdu');
+    if (idElem) {
+      currentVulnerabilityId = idElem.textContent.trim();
+      vulnerabilityFiles[currentVulnerabilityId] = [];
+    }
+
+    const filesElem = row.querySelector('td.desc.fileslist');
+    if (filesElem && currentVulnerabilityId) {
+      const fileInfo = filesElem.innerHTML.trim().split(/<br\s*\/?>/gi).map(file => file.trim());
+      vulnerabilityFiles[currentVulnerabilityId].push(...fileInfo);
+    }
+  });
+
+  // Парсинг второй таблицы с деталями уязвимостей
   const tables = doc.querySelectorAll('.vulnerabilitiesListTbl');
 
   tables.forEach(table => {
@@ -35,7 +57,7 @@ export function parseHTML(htmlContent, computerIdentifier) {
       }
       const idElem = row.querySelector('td.font10pt.title.key');
       if (idElem) {
-        const id = idElem.textContent.trim();
+        const id = idElem.innerHTML.replace(/<br\s*\/?>/gi, '; ').trim();
         const titleElem = row.querySelector('td.font10pt.bold.value.valueMargin');
         const title = titleElem ? titleElem.textContent.trim() : '';
         const descriptionElem = row.nextElementSibling?.nextElementSibling?.querySelector('td');
@@ -50,22 +72,56 @@ export function parseHTML(htmlContent, computerIdentifier) {
           references.push(refElem.getAttribute('href'));
         });
 
+        const files = vulnerabilityFiles[id] || [];
+
         vulnerabilities.push({
           id: id,
           error_level: error_level,
           title: title,
           description: description,
           measures: measures,
-          references: references
+          references: references,
+          files: files
         });
       }
     });
+  });
+
+  // Парсинг таблицы статистики
+  const statTable = doc.querySelector('.statTable');
+  const statRows = statTable.querySelectorAll('tr');
+  let totalCritical = 0;
+  let totalHigh = 0;
+  let totalMedium = 0;
+  let totalLow = 0;
+
+  statRows.forEach(row => {
+    const keyElem = row.querySelector('td.key');
+    if (keyElem) {
+      const keyText = keyElem.textContent.trim();
+      const valueElem = row.querySelector('td:nth-child(2)');
+      const value = valueElem ? parseInt(valueElem.textContent.trim(), 10) : 0;
+
+      if (keyText.includes('Критический')) {
+        totalCritical = value;
+      } else if (keyText.includes('Высокий')) {
+        totalHigh = value;
+      } else if (keyText.includes('Средний')) {
+        totalMedium = value;
+      } else if (keyText.includes('Низкий')) {
+        totalLow = value;
+      }
+    }
   });
 
   return {
     computerIdentifier: Identifier,
     reportNumber: reportNumber,
     reportDate: reportDate,
-    vulnerabilities: vulnerabilities
+    vulnerabilities: vulnerabilities,
+    totalCritical: totalCritical,
+    totalHigh: totalHigh,
+    totalMedium: totalMedium,
+    totalLow: totalLow
   };
 }

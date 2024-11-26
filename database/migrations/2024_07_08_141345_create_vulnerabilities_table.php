@@ -15,9 +15,8 @@ return new class extends Migration {
             $table->string('error_level');
             $table->text('description');
             $table->text('source_links');
-            $table->string('name');
+            $table->text('name');
             $table->text('remediation_measures');
-            $table->foreignId('identifiers_id')->constrained()->onDelete('cascade');
             $table->timestamps();
 
             $table->unique([
@@ -25,8 +24,7 @@ return new class extends Migration {
                 'description',
                 'source_links',
                 'name',
-                'remediation_measures',
-                'identifiers_id'
+                'remediation_measures'
             ], 'vuln_unique');
         });
     }

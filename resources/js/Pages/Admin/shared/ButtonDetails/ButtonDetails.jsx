@@ -21,7 +21,7 @@ const ButtonDetails = ({ visible, onClose, selectedVulnerability }) => {
                         </thead>
                         <tbody>
                             <tr>
-                                <td>{selectedVulnerability.identifier}</td>
+                                <td dangerouslySetInnerHTML={{ __html: selectedVulnerability.identifiers.replace(/; /g, '<br>') }}></td>
                                 <td>{selectedVulnerability.name}</td>
                                 <td>{selectedVulnerability.description}</td>
                                 <td>{selectedVulnerability.remediation_measures}</td>

@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\AdminGraphs;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CompareReportsController;
+use App\Http\Controllers\DestroyController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UploadController;
+use App\Http\Controllers\ViewController;
 use App\Models\VulnerabilityBase;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -18,8 +20,8 @@ Route::get('/cards', [ReportController::class, 'index']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/admin', function () {
-        
-        $latest = VulnerabilityBase::latest('date')->first()->toArray();
+        $latest = VulnerabilityBase::latest('date')->first();
+        $latest = $latest?->toArray();
         return Inertia::render('Admin/AdminPanel', [
             'latest' => $latest
         ]);
@@ -42,11 +44,11 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Admin/layout/CreateAdmin');
     })->name('admin.createadmin');
 
-    Route::post('/admin/upload', [ReportController::class, 'store'])->name('admin.upload');
-    Route::post('/admin/view', [ReportController::class, 'view'])->name('admin.view');
-    Route::post('/admin/download', [ReportController::class, 'view']);
-    Route::delete('/admin/view/', [ReportController::class, 'destroy'])->name('reports.destroy');
-    Route::post('/admin/comparison', [ReportController::class, 'compareReports'])->name('admin.comparison');
+    Route::post('/admin/upload', [UploadController::class, 'store'])->name('admin.upload');
+    Route::post('/admin/view', [ViewController::class, 'view'])->name('admin.view');
+    Route::post('/admin/download', [ViewController::class, 'view']);
+    Route::delete('/admin/view/', [DestroyController::class, 'destroy'])->name('reports.destroy');
+    Route::post('/admin/comparison', [CompareReportsController::class, 'compareReports'])->name('admin.comparison');
 
     Route::post('/admin/createadmin/register', [RegisteredUserController::class, 'store'])->name('register');
 
@@ -55,6 +57,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/admin/errors', [AdminGraphs::class, 'allErrors']);
 
+    // --- Где я это вообще использую ---
     Route::get('/admin/computers/count', function () {
         $count = \App\Models\Computer::count();
         return response()->json(['count' => $count]);
@@ -64,6 +67,7 @@ Route::middleware('auth')->group(function () {
         $count = \App\Models\Report::count();
         return response()->json(['count' => $count]);
     });
+    // ------
 
     Route::get('/admin/createadmin/getUsers', [ReportController::class, 'getUsers'])->name('admin.getUsers');
 
@@ -73,14 +77,5 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/admin/getRole', [AuthenticatedSessionController::class, 'getRole']);
 });
-// Route::get('/dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-// });
 
 require __DIR__.'/auth.php';

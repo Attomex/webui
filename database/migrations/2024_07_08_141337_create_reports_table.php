@@ -15,6 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('report_number')->unique();
             $table->date('report_date');
+            $table->integer('total_critical');
+            $table->integer('total_high');
+            $table->integer('total_medium');
+            $table->integer('total_low');
             $table->foreignId('computer_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

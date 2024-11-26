@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('identifiers', function (Blueprint $table) {
+        Schema::create('vulnerabilities_identifier', function (Blueprint $table) {
             $table->id();
-            $table->text('number')->unique();
+            $table->foreignId('vulnerability_id')->constrained()->onDelete('cascade');
+            $table->foreignId('identifier_id')->constrained()->onDelete('cascade');
             $table->timestamps();
+            
+            $table->unique(['vulnerability_id', 'identifier_id'], 'vuln_ident');
         });
     }
 
@@ -23,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('identifiers');
+        Schema::dropIfExists('vulnerabilities_identifier');
     }
 };

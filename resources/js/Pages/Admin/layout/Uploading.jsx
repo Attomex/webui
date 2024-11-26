@@ -26,6 +26,8 @@ const Uploading = () => {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const [loadingText, setLoadingText] = useState("");
+
 
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
@@ -55,12 +57,14 @@ const Uploading = () => {
         reader.onload = async (e) => {
             const content = e.target.result;
             const identifier = computerIdentifier;
+            setLoading(true);
+            setLoadingText("Происходит парсинг отчёта...");
             const parsedData = parseHTML(content, identifier);
 
             try {
-                setLoading(true);
                 setMessage("");
                 setError("");
+                setLoadingText("Отчёт загружается на сервер...");
                 const response = await axios.post("/admin/upload", parsedData, {
                     headers: {
                         "Content-Type": "application/json",
@@ -70,13 +74,14 @@ const Uploading = () => {
                 setMessage(response.data.message);
                 setError("");
             } catch (error) {
-                if (error.response && error.response.data.status === "400") {
-                    setError(error.response.data.message);
-                } else {
-                    setError(
-                        "Произошла неизвестная ошибка. Пожалуйста, обратитесь к администратору."
-                    );
-                }
+                // if (error.response && error.response.data.status === "400") {
+                //     setError(error.response.data.message);
+                // } else {
+                //     setError(
+                //         "Произошла неизвестная ошибка. Пожалуйста, обратитесь к администратору."
+                //     );
+                // }
+                setError(error.response.data.message);
                 setMessage("");
             } finally {
                 setLoading(false);
@@ -172,7 +177,7 @@ const Uploading = () => {
                                 Очистить поля
                             </Button>
                         </form>
-                        {loading && <LoadingSpinner text="Загружается..."/>}
+                        {loading && <LoadingSpinner text={loadingText}/>}
                         {message && <MessageAlert message={message} variant={"success"}/>}
                         {error && <MessageAlert message={error} variant={"danger"}/>}
                     </div>

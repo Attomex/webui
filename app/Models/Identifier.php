@@ -13,6 +13,6 @@ class Identifier extends Model
 
     public function vulnerabilities()
     {
-        return $this->hasMany(Vulnerability::class, 'identifiers_id');
+        return $this->belongsToMany(Vulnerability::class, 'vulnerabilities_identifier')->withTimestamps();
     }
 }
