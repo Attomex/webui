@@ -11,8 +11,9 @@ class Identifier extends Model
 
     protected $fillable = ['number'];
 
-    public function vulnerabilities()
+    public function reportVulnerabilities()
     {
-        return $this->belongsToMany(Vulnerability::class, 'vulnerabilities_identifier')->withTimestamps();
+        return $this->belongsToMany(ReportVulnerability::class, 'report_vulnerability_identifiers', 'identifier_id', 'report_vulnerability_id');
     }
+
 }

@@ -59,7 +59,7 @@ const Uploading = () => {
             const identifier = computerIdentifier;
             setLoading(true);
             setLoadingText("Происходит парсинг отчёта...");
-            const parsedData = parseHTML(content, identifier);
+            const parsedData = await parseHTML(content, identifier);
 
             try {
                 setMessage("");

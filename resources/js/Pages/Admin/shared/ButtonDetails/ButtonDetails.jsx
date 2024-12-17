@@ -3,7 +3,7 @@ import { CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CButton, C
 
 const ButtonDetails = ({ visible, onClose, selectedVulnerability }) => {
     return (
-        <CModal size="xl" scrollable visible={visible} onClose={onClose}>
+        <CModal fullscreen size='xl' scrollable visible={visible} onClose={onClose} >
             <CModalHeader onClose={onClose}>
                 <CModalTitle>Подробная информация</CModalTitle>
             </CModalHeader>
@@ -17,6 +17,7 @@ const ButtonDetails = ({ visible, onClose, selectedVulnerability }) => {
                                 <th>Описание</th>
                                 <th>Возможные меры по устранению</th>
                                 <th>Ссылки на источники</th>
+                                <th>Ссылки на файлы</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -36,6 +37,7 @@ const ButtonDetails = ({ visible, onClose, selectedVulnerability }) => {
                                         ))}
                                     </ul>
                                 </td>
+                                <td>{selectedVulnerability.files}</td>
                             </tr>
                         </tbody>
                     </CTable>

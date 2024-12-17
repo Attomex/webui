@@ -9,6 +9,8 @@ use App\Models\Report;
 use App\Models\Computer;
 use App\Models\Identifier;
 use App\Models\Vulnerability;
+use App\Models\ReportVulnerability;
+use App\Models\File;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -44,60 +46,55 @@ class UploadController extends Controller
                 // Разделение идентификаторов
                 $identifierNumbers = explode('; ', $vulnerabilityData['id']);
 
-                // Создание или получение каждого идентификатора
-                $identifiers = [];
+                // Проверка и создание уязвимости
+                $vulnerability = Vulnerability::firstOrCreate([
+                    'error_level' => $vulnerabilityData['error_level'],
+                    'description' => $vulnerabilityData['description'],
+                    'source_links' => implode(',', $vulnerabilityData['references']),
+                    'name' => $vulnerabilityData['title'],
+                    'remediation_measures' => $vulnerabilityData['measures'],
+                ]);
+
+                // Создание промежуточной записи report_vulnerability
+                $reportVulnerability = ReportVulnerability::firstOrCreate([
+                    'report_id' => $report->id,
+                    'vulnerability_id' => $vulnerability->id
+                ]);
+
+                // Обработка идентификаторов и их связи
                 foreach ($identifierNumbers as $number) {
                     $identifier = Identifier::firstOrCreate(['number' => $number]);
-                    if ($identifier instanceof Identifier) {
-                        $identifiers[] = $identifier->id; // Используем идентификаторы, а не объекты
-                    } else {
-                        throw new Exception("Не удалось создать или получить идентификатор: $number");
-                    }
-                }
-
-                // Проверка на существование уязвимости с такими же значениями всех полей
-                $vulnerability = Vulnerability::where('error_level', $vulnerabilityData['error_level'])
-                    ->where('description', $vulnerabilityData['description'])
-                    ->where('source_links', implode(',', $vulnerabilityData['references']))
-                    ->where('name', $vulnerabilityData['title'])
-                    ->where('remediation_measures', $vulnerabilityData['measures'])
-                    ->first();
-
-                if (!$vulnerability) {
-                    // Создание новой уязвимости, если её нет
-                    $vulnerability = Vulnerability::create([
-                        'error_level' => $vulnerabilityData['error_level'],
-                        'description' => $vulnerabilityData['description'],
-                        'source_links' => implode(',', $vulnerabilityData['references']),
-                        'name' => $vulnerabilityData['title'],
-                        'remediation_measures' => $vulnerabilityData['measures'],
+                    DB::table('report_vulnerability_identifiers')->updateOrInsert([
+                        'report_vulnerability_id' => $reportVulnerability->id,
+                        'identifier_id' => $identifier->id
                     ]);
                 }
 
-                // Присоединение идентификаторов к уязвимости
-                $vulnerability->identifiers()->sync($identifiers);
-
-                // Присоединение уязвимости к отчёту
-                $report->vulnerabilities()->attach($vulnerability->id);
+                // Обработка файлов и их связи
+                foreach ($vulnerabilityData['files'] as $filePath) {
+                    if ($filePath) {
+                        $file = File::firstOrCreate(['file_path' => $filePath]);
+                        DB::table('report_vulnerability_files')->updateOrInsert([
+                            'report_vulnerability_id' => $reportVulnerability->id,
+                            'file_id' => $file->id
+                        ]);
+                    }
+                }
             }
 
-            // Преобразуем массив в JSON-строку
+            // Сохранение исходного JSON в файл
             $jsonString = json_encode($parsedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            // Определяем путь для сохранения файла
             $filePath = storage_path('\\app\\reports\\' . uniqid() . '.json');
-            // Сохраняем JSON-строку в файл
             file_put_contents($filePath, $jsonString);
 
             DB::commit();
 
             return response()->json(['message' => "Отчет успешно загружен"]);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-
-            // Логирование ошибки
             \Log::error('Ошибка при загрузке отчета: ' . $e->getMessage());
-            
-            return response()->json(['message' => "Произошла ошибка при загрузке отчета" . $e, 'status' => '500'], Response::HTTP_INTERNAL_SERVER_ERROR);
+
+            return response()->json(['message' => "Произошла ошибка при загрузке отчета: " . $e->getMessage(), 'status' => '500'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

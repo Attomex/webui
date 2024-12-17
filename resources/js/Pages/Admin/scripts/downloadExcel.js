@@ -21,7 +21,8 @@ const downloadExcel = (selectedErrorLevels, selectedColumns, selectedComputer, s
         "Название уязвимости": 30,
         "Описание": 40,
         "Возможные меры по устранению": 50,
-        "Ссылки на источники": 60
+        "Ссылки на источники": 60,
+        "Ссылки на файлы": 60
     };
 
     // Создаем новую книгу
@@ -50,6 +51,7 @@ const downloadExcel = (selectedErrorLevels, selectedColumns, selectedComputer, s
         // Добавляем заголовки
         const headerRow = sheet.addRow(selectedColumns.map(column => {
             if (column === "Ссылки на источники") return "Ссылки на источники";
+            if (column === "Ссылки на файлы") return "Ссылки на файлы";
             return column;
         }));
 
@@ -66,11 +68,12 @@ const downloadExcel = (selectedErrorLevels, selectedColumns, selectedComputer, s
         filteredVulnerabilities.forEach(vulnerability => {
             const rowData = selectedColumns.map(column => {
                 if (column === "Уровень ошибки") return vulnerability.error_level;
-                if (column === "Идентификатор уязвимости") return vulnerability.identifier;
+                if (column === "Идентификатор уязвимости") return vulnerability.identifiers;
                 if (column === "Название уязвимости") return vulnerability.name;
                 if (column === "Описание") return vulnerability.description;
                 if (column === "Возможные меры по устранению") return vulnerability.remediation_measures;
                 if (column === "Ссылки на источники") return vulnerability.source_links.join("\n");
+                if (column === "Ссылки на файлы") return vulnerability.files.join("\n");
                 return "";
             });
             const row = sheet.addRow(rowData);

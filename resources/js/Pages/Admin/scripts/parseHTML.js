@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-export function parseHTML(htmlContent, computerIdentifier) {
+export async function parseHTML(htmlContent, computerIdentifier) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, 'text/html');
 
@@ -33,7 +33,7 @@ export function parseHTML(htmlContent, computerIdentifier) {
   vulnerabilityRows.forEach(row => {
     const idElem = row.querySelector('td.bdu');
     if (idElem) {
-      currentVulnerabilityId = idElem.textContent.trim();
+      currentVulnerabilityId = idElem.innerHTML.replace(/<br\s*\/?>/gi, '; ').trim();
       vulnerabilityFiles[currentVulnerabilityId] = [];
     }
 
@@ -69,10 +69,26 @@ export function parseHTML(htmlContent, computerIdentifier) {
         const references = [];
         const refElems = row.nextElementSibling?.nextElementSibling?.nextElementSibling?.nextElementSibling?.nextElementSibling?.nextElementSibling?.querySelectorAll('.ref_ref a');
         refElems?.forEach(refElem => {
-          references.push(refElem.getAttribute('href'));
+          const href = refElem.getAttribute('href');
+          if (href) {
+            references.push(href);
+          } else {
+            const refIdElem = refElem.parentElement.previousElementSibling;
+            if (refIdElem && refIdElem.classList.contains('ref_id') && refIdElem.textContent.startsWith('ALRT.')) {
+              const alrtId = refIdElem.textContent.trim().replace('ALRT.', '').replace(/\s.*$/, '');
+              references.push(`https://safe-surf.ru/upload/ALRT/ALRT-${alrtId}.pdf`);
+            }
+          }
         });
 
         const files = vulnerabilityFiles[id] || [];
+
+        // Парсинг путей к файлам из элементов с классом `td.desc.fileslist`
+        // const filesElems = row.querySelectorAll('td.desc.fileslist');
+        // filesElems.forEach(fileElem => {
+        //   const fileInfo = fileElem.textContent.trim().split(/<br\s*\/?>/gi).map(file => file.trim());
+        //   files.push(...fileInfo);
+        // });
 
         vulnerabilities.push({
           id: id,

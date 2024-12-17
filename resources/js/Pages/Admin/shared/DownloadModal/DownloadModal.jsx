@@ -46,6 +46,7 @@ const DownloadModal = ({ visible, onClose, onDownload, selectedErrorLevels, setS
                         "Описание",
                         "Возможные меры по устранению",
                         "Ссылки на источники",
+                        "Ссылки на файлы",
                     ].map(column => (
                         <div key={column}>
                             <input
