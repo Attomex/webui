@@ -50,6 +50,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/admin/view/', [DestroyController::class, 'destroy'])->name('reports.destroy');
     Route::post('/admin/comparison', [CompareReportsController::class, 'compareReports'])->name('admin.comparison');
 
+    Route::get('/admin/view/vulnerabilities', function () {
+        return Inertia::render('Admin/shared/VulnerabilitiesPage/VulnerabilitiesPage');
+    });
+
     Route::post('/admin/createadmin/register', [RegisteredUserController::class, 'store'])->name('register');
 
     Route::get('/admin/getComputersIdentifiers', [ReportController::class, 'getComputersIdentifiers'])->name("admin.getComputersIdentifiers");
@@ -78,4 +82,4 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/getRole', [AuthenticatedSessionController::class, 'getRole']);
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

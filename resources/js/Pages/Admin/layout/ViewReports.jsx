@@ -24,6 +24,7 @@ import ButtonDetails from "../shared/ButtonDetails/ButtonDetails";
 import VulnerabilityCard from "../shared/VulnerabilityCard/VulnerabilityCard";
 import ButtonDelete from "../shared/ButtonDelete/ButtonDelete";
 import VulnerabilityInfo from "../shared/VulnerabilityInfo/VulnerabilityInfo";
+import FileTable from "../shared/FileTable/FileTable";
 
 const ViewReports = () => {
     const [selectedComputer, setSelectedComputer] = useState("");
@@ -40,7 +41,7 @@ const ViewReports = () => {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const [vulnerabilities, setVulnerabilities] = useState([]);
+    const [vulnerabilities, setVulnerabilities] = useState({});
 
     const [visible, setVisible] = useState(false);
     const [selectedVulnerability, setSelectedVulnerability] = useState(null);
@@ -110,7 +111,7 @@ const ViewReports = () => {
             });
             setVulnerabilities(response.data.vulnerabilities);
             setMessage(response.data.message);
-            setError("");
+            setError(response.data.error);
             setVisibleDelete(true);
         } catch (error) {
             setError(error.response.data.error);
@@ -202,8 +203,15 @@ const ViewReports = () => {
                         {error && (
                             <MessageAlert message={error} variant={"danger"} />
                         )}
+                        {Object.keys(vulnerabilities || {}).length > 0 && (
+                            <FileTable 
+                                files={vulnerabilities}
+                                selectedComputer={selectedComputer}
+                                selectedDate={selectedDate}
+                                selectedReportNumber={selectedReportNumber} />
+                        )}
 
-                        {vulnerabilities.length > 0 && (
+                        {/* {vulnerabilities.length > 0 && (
                             <VulnerabilityInfo
                                 vulnerabilities={vulnerabilities}
                                 selectedComputer={selectedComputer}
@@ -211,17 +219,18 @@ const ViewReports = () => {
                                 selectedReportNumber={selectedReportNumber}
                                 openModal={openModal}
                             />
-                        )}
-                        <ButtonDetails
+                        )} */}
+                        {/* <ButtonDetails
                             visible={visible}
                             onClose={() => setVisible(false)}
                             selectedVulnerability={selectedVulnerability}
-                        />
+                        /> */}
                     </div>
                 </div>
                 <br />
                 <AppFooter />
             </div>
+            
         </div>
     );
 };
