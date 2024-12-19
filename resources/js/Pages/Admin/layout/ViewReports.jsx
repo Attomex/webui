@@ -25,6 +25,7 @@ import VulnerabilityCard from "../shared/VulnerabilityCard/VulnerabilityCard";
 import ButtonDelete from "../shared/ButtonDelete/ButtonDelete";
 import VulnerabilityInfo from "../shared/VulnerabilityInfo/VulnerabilityInfo";
 import FileTable from "../shared/FileTable/FileTable";
+import { Head } from "@inertiajs/react";
 
 const ViewReports = () => {
     const [selectedComputer, setSelectedComputer] = useState("");
@@ -122,6 +123,7 @@ const ViewReports = () => {
     };
     return (
         <div style={{ overflowX: "hidden" }}>
+            <Head title="Просмотр отчетов" />   
             <AppSidebar />
             <div className="wrapper d-flex flex-column min-vh-100">
                 <AppHeader />

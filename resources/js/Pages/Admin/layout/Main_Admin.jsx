@@ -11,10 +11,12 @@ import ErrorLevels from "../components/graphs/barChar/ErrorLevels";
 import c from "./layoutModules/Main_Admin.module.css";
 import TotalComputersReports from "../components/graphs/barChar/TotalComputersReports";
 import LatestVulnerability from "../shared/LatestVulnerability/LatestVulnerability";
+import { Head } from "@inertiajs/react";
 
 const Main_Admin = ({ latest }) => {
     return (
         <div>
+            <Head title="Главная" />
             <AppSidebar />
             <div className="wrapper d-flex flex-column min-vh-100">
                 <AppHeader />

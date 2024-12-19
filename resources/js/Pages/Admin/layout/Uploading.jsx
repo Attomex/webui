@@ -16,6 +16,7 @@ import { useComputerOptions } from "../hooks/useReportsData";
 
 import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner";
 import MessageAlert from "../shared/MessageAlert/MessageAlert";
+import { Head } from "@inertiajs/react";
 
 const Uploading = () => {
     const [report_file, setFile] = useState(null);
@@ -100,6 +101,7 @@ const Uploading = () => {
 
     return (
         <div>
+            <Head title="Загрузка отчётов" />
             <AppSidebar />
             <div className="wrapper d-flex flex-column min-vh-100">
                 <AppHeader />

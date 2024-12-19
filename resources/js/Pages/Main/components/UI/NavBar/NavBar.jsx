@@ -1,18 +1,18 @@
 import React from "react";
 import c from "./NavBar.module.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Link } from "@inertiajs/inertia-react";
+import { Link } from "@inertiajs/react";
 
 const NavBar = () => {
   return (
     <div className={c.navbar}>
       <div className={c.main}>
-        <Link href="/" className={c.text}>
+        <Link href={route("home")} className={c.text}>
           Web UI ScanOVAL
         </Link>
       </div>
       <div className={c.adminpanel}>
-        <Link href="/admin" className={c.text}>
+        <Link href={route("admin")} className={c.text}>
           Админ панель
         </Link>
       </div>

@@ -14,7 +14,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 
 Route::get('/', function () {
     return Inertia::render('Main/main');
-});
+})->name('home');
 
 Route::get('/cards', [ReportController::class, 'index']);
 
@@ -29,26 +29,26 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/admin/view', function () {
         return Inertia::render('Admin/layout/ViewReports');
-    });
+    })->name('admin.view');
     Route::get('/admin/upload', function () {
         return Inertia::render('Admin/layout/Uploading');
-    });
+    })->name('admin.upload');
     Route::get('/admin/comparison', function () {
         return Inertia::render('Admin/layout/Comparison');
-    });
+    })->name('admin.comparison');
     Route::get('/admin/download', function () {
         return Inertia::render('Admin/layout/DownloadReport');
-    });
+    })->name('admin.download');
 
     Route::get('/admin/createadmin', function () {
         return Inertia::render('Admin/layout/CreateAdmin');
     })->name('admin.createadmin');
 
-    Route::post('/admin/upload', [UploadController::class, 'store'])->name('admin.upload');
-    Route::post('/admin/view', [ViewController::class, 'view'])->name('admin.view');
+    Route::post('/admin/upload', [UploadController::class, 'store']);
+    Route::post('/admin/view', [ViewController::class, 'view']);
     Route::post('/admin/download', [ViewController::class, 'view']);
     Route::delete('/admin/view/', [DestroyController::class, 'destroy'])->name('reports.destroy');
-    Route::post('/admin/comparison', [CompareReportsController::class, 'compareReports'])->name('admin.comparison');
+    Route::post('/admin/comparison', [CompareReportsController::class, 'compareReports']);
 
     Route::get('/admin/view/vulnerabilities', function () {
         return Inertia::render('Admin/shared/VulnerabilitiesPage/VulnerabilitiesPage');

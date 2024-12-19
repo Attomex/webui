@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { Link } from "@inertiajs/inertia-react";
+import { Link } from "@inertiajs/react";
 import { Inertia } from "@inertiajs/inertia";
 import { useRole } from "../hooks/useRole";
 
@@ -16,22 +16,22 @@ const AppSidebar = () => {
     const role = useRole();
 
     const commonItems = [
-        { name: "Просмотр отчётов", href: "/admin/view" },
-        { name: "Загрузка отчётов", href: "/admin/upload" },
-        { name: "Сравнить отчёты", href: "/admin/comparison" },
-        { name: "Скачать отчёт", href: "/admin/download" },
+        { name: "Просмотр отчётов", href: route("admin.view") },
+        { name: "Загрузка отчётов", href: route("admin.upload") },
+        { name: "Сравнить отчёты", href: route("admin.comparison") },
+        { name: "Скачать отчёт", href: route("admin.download") },
     ];
 
-    const superAdminItem = { name: "Управление", href: "/admin/createadmin" };
+    const superAdminItem = {
+        name: "Управление",
+        href: route("admin.createadmin"),
+    };
 
     const items = useMemo(() => {
-        return role === 'SuperAdmin' ? [...commonItems, superAdminItem] : commonItems;
+        return role === "SuperAdmin"
+            ? [...commonItems, superAdminItem]
+            : commonItems;
     }, [role]);
-
-    const handleClick = (event, to) => {
-        event.preventDefault(); // Предотвращаем стандартное поведение ссылки
-        Inertia.visit(to); // Перенаправляем с помощью Inertia
-    };
 
     return (
         <CSidebar className="border-end" colorScheme="dark" position="fixed">
@@ -46,9 +46,13 @@ const AppSidebar = () => {
                 <CCloseButton className="d-lg-none" dark />
             </CSidebarHeader>
             {items.map((item, index) => (
-                <div
+                <Link
                     key={index}
+                    href={item.href}
                     style={{
+                        textDecoration: "none",
+                        color: "rgb(243, 244, 247)",
+                        fontSize: "18px",
                         padding: "10px",
                         marginLeft: "10px",
                         marginTop: "10px",
@@ -71,21 +75,11 @@ const AppSidebar = () => {
                     onClick={(e) => {
                         e.currentTarget.style.backgroundColor = ""; // Возвращаем исходный цвет
                         e.currentTarget.style.cursor = ""; // Возвращаем исходный курсор мыши
-                        handleClick(e, item.href);
+                        // handleClick(e, item.href);
                     }}
                 >
-                    <button
-                        {...item}
-                        style={{
-                            textDecoration: "none",
-                            color: "rgb(243, 244, 247)",
-                            fontSize: "18px",
-                        }}
-                        onClick={() => (window.location.href = item.href)}
-                    >
-                        {item.name}
-                    </button>
-                </div>
+                    {item.name}
+                </Link>
             ))}
         </CSidebar>
     );

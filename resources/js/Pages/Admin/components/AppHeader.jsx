@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Link } from "@inertiajs/inertia-react";
+import { Link } from "@inertiajs/react";
 
 import c from "./AppHeaderLinks.module.css";
 
@@ -52,24 +52,20 @@ const AppHeader = () => {
             <CContainer className="border-bottom px-4" fluid>
                 <CHeaderNav className="d-none d-md-flex">
                     <CNavItem>
-                        <a
+                        <Link
                             className={c.head_link}
-                            onClick={() => (window.location.href = "/")}
+                            href={route('home')}
                             style={{ cursor: "pointer" }}
                         >
                             Вернуться на сайт
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             className={c.head_link}
-                            onClick={() => {
-                                if (window.location.pathname !== "/admin") {
-                                  window.location.href = "/admin";
-                                }
-                              }} 
+                            href={route('admin')}
                             style={{ cursor: "pointer" }}
                         >
                             Главная
-                        </a>
+                        </Link>
                     </CNavItem>
                 </CHeaderNav>
                 <CHeaderNav>

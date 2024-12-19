@@ -5,12 +5,12 @@
 }
 
 .card {
-    background-color: #f0f0f0; /* Цвет фона карточки */
-    border: 1px solid #ccc; /* Граница карточки */
-    box-sizing: border-box; /* Учитывать границы и отступы в ширине */
-    flex: 1 1 calc(33.33% - 10px); /* Основная ширина карточки, позволяет 3 карточкам быть в ряду */
-    min-width: 16rem; /* Минимальная ширина карточки */
-    max-width: 1fr; /* Максимальная ширина карточки */
+    background-color: #f0f0f0 !important; /* Цвет фона карточки */
+    border: 1px solid #ccc !important; /* Граница карточки */
+    box-sizing: border-box !important; /* Учитывать границы и отступы в ширине */
+    flex: 1 1 calc(33.33% - 10px) !important; /* Основная ширина карточки, позволяет 3 карточкам быть в ряду */
+    min-width: 16rem !important; /* Минимальная ширина карточки */
+    max-width: 1fr !important; /* Максимальная ширина карточки */
 }
 
 @media (max-width: 1200px) {

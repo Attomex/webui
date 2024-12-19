@@ -8,7 +8,7 @@ import {
 import "../scss/style.scss";
 import { Button, Table } from "react-bootstrap";
 
-import { useForm } from "@inertiajs/react";
+import { Head, useForm } from "@inertiajs/react";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -89,6 +89,7 @@ const CreateAdmin = () => {
 
     return (
         <div>
+            <Head title="Регистрация администратора" />
             <AppSidebar />
             <div className="wrapper d-flex flex-column min-vh-100">
                 <AppHeader />

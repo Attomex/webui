@@ -33,6 +33,7 @@ import ButtonDetails from "../shared/ButtonDetails/ButtonDetails";
 import SelectField from "../shared/SelectField/SelectField";
 import VulnerabilityCard from "../shared/VulnerabilityCard/VulnerabilityCard";
 import ComparisonVulnerability from "../shared/ComparisonVulnerability/ComparisonVulnerability";
+import { Head } from "@inertiajs/react";
 
 const Comparison = () => {
     // Базовые состояния
@@ -164,6 +165,7 @@ const Comparison = () => {
 
     return (
         <div>
+            <Head title="Сравнение отчётов" />
             <AppSidebar />
             <div className="wrapper d-flex flex-column min-vh-100">
                 <AppHeader />

@@ -25,6 +25,7 @@ import SelectField from "../shared/SelectField/SelectField";
 import VulnerabilityInfo from "../shared/VulnerabilityInfo/VulnerabilityInfo";
 import downloadExcel from "../scripts/downloadExcel";
 import DownloadModal from "../shared/DownloadModal/DownloadModal";
+import { Head } from "@inertiajs/react";
 
 const DownloadReport = () => {
     const [selectedComputer, setSelectedComputer] = useState("");
@@ -153,6 +154,7 @@ const DownloadReport = () => {
 
     return (
         <div style={{ overflowX: "hidden" }}>
+            <Head title="Скачивание отчёта" />
             <AppSidebar />
             <div className="wrapper d-flex flex-column min-vh-100">
                 <AppHeader />
